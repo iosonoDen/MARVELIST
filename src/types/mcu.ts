@@ -24,6 +24,7 @@ export interface MCUEntry {
   watched: boolean;
   rating: number;
   tmdbId?: number;
+  tmdbType?: 'movie' | 'tv';
 }
 
 export type SortMode = 'timeline' | 'release';

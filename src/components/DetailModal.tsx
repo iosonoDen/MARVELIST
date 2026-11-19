@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { MCUEntry, SupportedLocale } from '@/types/mcu';
 import { StarRating } from '@/components/StarRating';
 import { Poster } from '@/components/Poster';
-import { X, Youtube, Film, Tv, CheckCircle2, Circle } from 'lucide-react';
+import { X, Youtube, Film, Tv, CheckCircle2, Circle, ExternalLink } from 'lucide-react';
 
 interface DetailModalProps {
   entry: MCUEntry | null;
@@ -157,6 +157,18 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             </div>
           </div>
 
+          <div className="space-y-2">
+          {entry.tmdbId && entry.tmdbType && (
+            <a
+              href={`https://www.themoviedb.org/${entry.tmdbType}/${entry.tmdbId}?language=${locale === 'it' ? 'it-IT' : 'en-US'}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-2.5 px-4 rounded-xl bg-neutral-900 border border-white/10 hover:border-[#01b4e4]/60 text-neutral-200 hover:text-white font-mono text-xs font-bold tracking-wider uppercase flex items-center justify-center gap-2 transition-all"
+            >
+              <ExternalLink size={15} className="text-[#01b4e4]" />
+              <span>{locale === 'it' ? 'Scheda su TMDB' : 'View on TMDB'}</span>
+            </a>
+          )}
           <a
             href={youtubeSearchUrl}
             target="_blank"
@@ -166,6 +178,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             <Youtube size={18} />
             <span>{locale === 'it' ? 'Guarda Trailer Ufficiale (Marvel IT)' : 'Watch Official Trailer (Marvel IT)'}</span>
           </a>
+          </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 # MARVELIST — Cinematic MCU Watchlist
 
-> Versione **1.1.0**
+> Versione **1.2.0**
 
 MARVELIST è una web app per tracciare la visione del Marvel Cinematic Universe (film e serie Disney+), con doppio ordinamento, voti a mezza stella e import/export Excel.
 
@@ -13,12 +13,13 @@ MARVELIST è una web app per tracciare la visione del Marvel Cinematic Universe 
 - **Voti da 0,5 a 5 stelle**. Cliccando di nuovo sullo stesso voto lo azzeri.
 - **Salvataggio automatico** di "visto" e voti nel browser (`localStorage`, chiave `marvelist:progress:v1`).
 - **Import/Export XLSX** con colonna `Voto` numerica: le mezze stelle non si perdono. I file esportati da versioni precedenti restano importabili.
+- **Poster ufficiali da [TMDB](https://www.themoviedb.org/)** in versione italiana per tutti i 57 titoli, con link alla scheda TMDB nel dettaglio. ID e percorsi sono in `src/data/tmdb.ts`.
 - **Interfaccia IT/EN**.
 
 ## Limiti attuali
 
 - I dati restano nel singolo browser: non c'è ancora sincronizzazione tra dispositivi né login.
-- Solo alcuni titoli hanno un poster reale (TMDB); per gli altri viene mostrata una copertina generata.
+- Se un poster TMDB non carica, viene mostrata una copertina generata.
 - Il pulsante trailer apre una ricerca su YouTube.
 
 ## Installazione locale
@@ -37,6 +38,10 @@ Altri comandi: `npm run build`, `npm run lint`, `npm run typecheck`.
 ### Video di sfondo (opzionale)
 
 Lo sfondo animato cerca `public/Marvel-Opening-Theme.mp4`, che **non è incluso nel repository**. Se manca, la pagina mostra un gradiente scuro. Usa solo video di cui hai i diritti.
+
+## Crediti
+
+Poster e metadati: [The Movie Database (TMDB)](https://www.themoviedb.org/). Questo prodotto usa dati TMDB ma non è approvato né certificato da TMDB.
 
 ## Licenza
 

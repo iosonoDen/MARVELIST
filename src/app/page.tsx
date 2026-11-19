@@ -227,6 +227,16 @@ export default function MCUWatchlistApp() {
         </section>
       </main>
 
+      <footer className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 text-center text-[10px] font-mono text-neutral-500">
+        {locale === 'it' ? 'Poster e metadati da ' : 'Posters and metadata from '}
+        <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer" className="text-[#01b4e4] hover:underline">
+          TMDB
+        </a>
+        {locale === 'it'
+          ? '. Questo prodotto usa dati TMDB ma non è approvato né certificato da TMDB.'
+          : '. This product uses TMDB data but is not endorsed or certified by TMDB.'}
+      </footer>
+
       <DetailModal
         entry={activeEntry}
         isOpen={Boolean(activeEntry)}

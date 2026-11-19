@@ -35,7 +35,7 @@ export const GlobalProgressHeader: React.FC<GlobalProgressHeaderProps> = ({
               MARVELIST
             </h1>
             <p className="text-[10px] text-neutral-500 font-mono tracking-wider">
-              {locale === 'it' ? 'Checklist di Visione Canonica' : 'Canonical Watchlist Tracker'} • v1.0.0
+              {locale === 'it' ? 'Checklist di Visione Canonica' : 'Canonical Watchlist Tracker'} • v1.2.0
             </p>
           </div>
         </div>
