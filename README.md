@@ -1,4 +1,4 @@
-# MARVELIST — Cinematic MCU Watchlist
+# MARVELIST - MCU Watchlist
 
 > Versione **1.2.0**
 
