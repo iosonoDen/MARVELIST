@@ -3,6 +3,7 @@
 import React from 'react';
 import { MCUEntry, SupportedLocale, SortMode } from '@/types/mcu';
 import { StarRating } from '@/components/StarRating';
+import { Poster } from '@/components/Poster';
 import { CheckCircle2, Circle } from 'lucide-react';
 
 interface MCUCardProps {
@@ -28,11 +29,10 @@ export const MCUCard: React.FC<MCUCardProps> = ({
       className="group relative flex flex-col rounded-xl overflow-hidden bg-[#0A0D14]/90 border border-white/10 hover:border-[#E21B24]/60 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-[0_10px_30px_rgba(226,27,36,0.25)] hover:-translate-y-1"
     >
       <div className="relative aspect-[2/3] w-full overflow-hidden bg-neutral-950">
-        <img
-          src={entry.posterUrl}
-          alt={entry.title[locale]}
-          className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-          loading="lazy"
+        <Poster
+          entry={entry}
+          locale={locale}
+          className="transition-transform duration-500 ease-out group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-85" />
 

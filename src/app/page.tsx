@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useMemo, useRef } from 'react';
-import { INITIAL_MCU_DATABASE } from '@/data/mcu-canon';
-import { MCUEntry, SortMode, FilterType, FilterStatus, SupportedLocale } from '@/types/mcu';
+import { INITIAL_MCU_DATABASE, MCU_PHASES } from '@/data/mcu-canon';
+import { useWatchlistStorage } from '@/hooks/useWatchlistStorage';
+import { MCUEntry, SortMode, FilterType, FilterStatus } from '@/types/mcu';
 import { CinematicBackground } from '@/components/CinematicBackground';
 import { GlobalProgressHeader } from '@/components/GlobalProgressHeader';
 import { DetailModal } from '@/components/DetailModal';
@@ -11,8 +12,8 @@ import { exportToMCUExcel, parseMCUExcel } from '@/utils/excel-sync';
 import { Search, Clock, Calendar } from 'lucide-react';
 
 export default function MCUWatchlistApp() {
-  const [entries, setEntries] = useState<MCUEntry[]>(INITIAL_MCU_DATABASE);
-  const [locale, setLocale] = useState<SupportedLocale>('it');
+  const { entries, setEntries, locale, setLocale } = useWatchlistStorage(INITIAL_MCU_DATABASE);
+  const [importMessage, setImportMessage] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<SortMode>('timeline');
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
@@ -70,10 +71,16 @@ export default function MCUWatchlistApp() {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const merged = await parseMCUExcel(file, entries);
+      const { entries: merged, matched } = await parseMCUExcel(file, entries);
       setEntries(merged);
+      setImportMessage(
+        locale === 'it' ? `Import completato: ${matched} titoli aggiornati.` : `Import complete: ${matched} titles updated.`
+      );
     } catch (err) {
       console.error('Errore import Excel:', err);
+      setImportMessage(locale === 'it' ? 'Errore: file Excel non valido.' : 'Error: invalid Excel file.');
+    } finally {
+      e.target.value = '';
     }
   };
 
@@ -181,15 +188,19 @@ export default function MCUWatchlistApp() {
               className="px-2.5 py-1 rounded-md bg-neutral-900 border border-white/10 text-neutral-300 text-xs font-mono focus:border-[#E21B24] focus:outline-none"
             >
               <option value="all">{locale === 'it' ? 'Tutte le Fasi' : 'All Phases'}</option>
-              <option value="Phase 1">Phase 1</option>
-              <option value="Phase 2">Phase 2</option>
-              <option value="Phase 3">Phase 3</option>
-              <option value="Phase 4">Phase 4</option>
-              <option value="Phase 5">Phase 5</option>
-              <option value="Phase 6">Phase 6</option>
+              {MCU_PHASES.map((phase) => (
+                <option key={phase} value={phase}>{phase}</option>
+              ))}
             </select>
           </div>
         </section>
+
+        {importMessage && (
+          <div role="status" className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-neutral-950/70 border border-white/10 text-xs font-mono text-neutral-200">
+            <span>{importMessage}</span>
+            <button type="button" onClick={() => setImportMessage(null)} className="text-neutral-400 hover:text-white" aria-label="Chiudi">✕</button>
+          </div>
+        )}
 
         <section>
           {filteredEntries.length === 0 ? (

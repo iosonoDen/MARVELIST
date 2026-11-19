@@ -17,6 +17,7 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (mediaQuery.matches) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- preferenza utente letta solo nel browser
       setVideoDisabled(true);
     }
   }, []);

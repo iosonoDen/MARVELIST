@@ -49,7 +49,11 @@ export const StarRating: React.FC<StarRatingProps> = ({
             key={index}
             className={`relative cursor-${readOnly ? 'default' : 'pointer'} transition-transform active:scale-90`}
             onMouseMove={(e) => handleMouseMove(e, index)}
-            onClick={() => !readOnly && onChange?.(hoverValue ?? (index + 1))}
+            onClick={() => {
+              if (readOnly || !onChange) return;
+              const next = hoverValue ?? index + 1;
+              onChange(next === value ? 0 : next); // clic sullo stesso voto = azzera
+            }}
           >
             <svg
               className={`${starSizes[size]} text-neutral-800 transition-colors`}

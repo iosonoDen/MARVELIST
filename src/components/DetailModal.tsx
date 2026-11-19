@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { MCUEntry, SupportedLocale } from '@/types/mcu';
 import { StarRating } from '@/components/StarRating';
+import { Poster } from '@/components/Poster';
 import { X, Youtube, Film, Tv, CheckCircle2, Circle } from 'lucide-react';
 
 interface DetailModalProps {
@@ -66,12 +67,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
 
         <div className="w-full md:w-5/12 flex flex-col items-center gap-4 flex-shrink-0">
           <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden border border-white/10 shadow-2xl group">
-            <img
-              src={entry.posterUrl}
-              alt={entry.title[locale]}
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
+            <Poster entry={entry} locale={locale} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
             
             <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-[#E21B24] text-white text-[10px] font-black uppercase tracking-wider font-mono">
@@ -126,7 +122,9 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 <span className="text-neutral-500 block text-[10px] uppercase">
                   {locale === 'it' ? 'Data di Uscita' : 'Release Date'}
                 </span>
-                <span className="text-neutral-200 font-bold">{entry.releaseYear}</span>
+                <span className="text-neutral-200 font-bold">
+                  {new Date(entry.releaseDate).toLocaleDateString(locale === 'it' ? 'it-IT' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </span>
               </div>
             </div>
 
@@ -146,12 +144,9 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               <div className="grid grid-cols-2 gap-2.5">
                 {entry.topCast.map((actor, idx) => (
                   <div key={idx} className="flex items-center gap-2.5 p-2 rounded-lg bg-neutral-900/40 border border-white/5">
-                    <img
-                      src={actor.avatarUrl}
-                      alt={actor.name}
-                      className="w-10 h-10 rounded-full object-cover border border-white/10"
-                      loading="lazy"
-                    />
+                    <div className="w-10 h-10 flex-shrink-0 rounded-full bg-neutral-800 border border-white/10 flex items-center justify-center text-[11px] font-bold text-neutral-300 font-mono" aria-hidden="true">
+                      {actor.name.split(' ').map((p) => p[0]).slice(0, 2).join('')}
+                    </div>
                     <div className="min-w-0">
                       <p className="text-xs font-bold text-white truncate">{actor.name}</p>
                       <p className="text-[10px] text-neutral-400 truncate font-mono">{actor.character}</p>

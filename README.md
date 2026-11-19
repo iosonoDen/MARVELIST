@@ -1,34 +1,43 @@
-# MARVELIST — Cinematic MCU Watchlist & Architecture Tracker
+# MARVELIST — Cinematic MCU Watchlist
 
-> Release **v1.0.0** — Production Ready.
+> Versione **1.1.0**
 
-MARVELIST è una piattaforma web moderna creata per tracciare e gestire la visione canonica del Marvel Cinematic Universe (film e serie TV), arricchita da metadati cronologici ufficiali, preview trailer su Marvel IT, votazioni di precisione e sincronizzazione cloud su Vercel.
+MARVELIST è una web app per tracciare la visione del Marvel Cinematic Universe (film e serie Disney+), con doppio ordinamento, voti a mezza stella e import/export Excel.
 
-## Caratteristiche Tecniche
-- **Next.js 15 (App Router)** con React 19 e TypeScript Strict Mode.
-- **Design System Cinematografico:** Tema scuro perenne, accenti cremisi `#E21B24`, blur dinamico su video background.
-- **57 Voci Canoniche:** Tutti i 40 film originali del file XLSX integrati con le 17 serie TV Disney+.
-- **Doppio Ordinamento Nativo:** Timeline in-universe e data di uscita cinematografica reale.
-- **Valutazione a 0.5 Stelle:** Slider WAI-ARIA conforme alle norme di accessibilità WCAG 2.1 AA.
-- **Import/Export XLSX:** Compatibilità bidirezionale diretta con fogli di calcolo.
-- **Proxy TMDB Edge Caching:** Recupero sicuro di poster e cast in alta risoluzione.
-- **Sincronizzazione Multi-Dispositivo:** Supporto nativo per Vercel KV / Upstash Redis con fallback locale su `localStorage`.
+## Funzionalità
 
-## Installazione Locale
+- **Next.js 16 (App Router)**, React 19, TypeScript in strict mode.
+- **57 titoli**: 39 film (da *Iron Man* ad *Avengers: Doomsday*) e 18 serie e speciali Disney+.
+- **Due ordinamenti**: cronologia interna al MCU (ordine Disney+, approssimato per le uscite più recenti) e data di uscita.
+- **Filtri** per tipo, stato di visione e fase; ricerca per titolo o anno.
+- **Voti da 0,5 a 5 stelle**. Cliccando di nuovo sullo stesso voto lo azzeri.
+- **Salvataggio automatico** di "visto" e voti nel browser (`localStorage`, chiave `marvelist:progress:v1`).
+- **Import/Export XLSX** con colonna `Voto` numerica: le mezze stelle non si perdono. I file esportati da versioni precedenti restano importabili.
+- **Interfaccia IT/EN**.
+
+## Limiti attuali
+
+- I dati restano nel singolo browser: non c'è ancora sincronizzazione tra dispositivi né login.
+- Solo alcuni titoli hanno un poster reale (TMDB); per gli altri viene mostrata una copertina generata.
+- Il pulsante trailer apre una ricerca su YouTube.
+
+## Installazione locale
+
+Richiede **Node.js 20.9 o superiore**.
 
 ```bash
-# Clona il repository
 git clone https://github.com/iosonoDen/MARVELIST.git
 cd MARVELIST
-
-# Installa le dipendenze
 npm install
-
-# Avvia l'ambiente di sviluppo
 npm run dev
 ```
 
-Copia il file video `Marvel-Opening-Theme.mp4` nella cartella `public/` per attivare lo sfondo cinematografico animato.
+Altri comandi: `npm run build`, `npm run lint`, `npm run typecheck`.
+
+### Video di sfondo (opzionale)
+
+Lo sfondo animato cerca `public/Marvel-Opening-Theme.mp4`, che **non è incluso nel repository**. Se manca, la pagina mostra un gradiente scuro. Usa solo video di cui hai i diritti.
 
 ## Licenza
-Progetto personale ad uso didattico e dimostrativo. I marchi e i personaggi citati appartengono a Marvel Studios e The Walt Disney Company.
+
+Progetto personale a scopo didattico e dimostrativo. Marchi e personaggi appartengono a Marvel Studios e a The Walt Disney Company.
