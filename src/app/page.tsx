@@ -86,7 +86,7 @@ export default function MCUWatchlistApp() {
 
   return (
     <div className="relative min-h-screen text-neutral-100 selection:bg-[#E21B24] selection:text-white font-sans">
-      <CinematicBackground videoSrc="/Marvel-Opening-Theme.mp4" />
+      <CinematicBackground videoSrc='"C:\\Repo\\website-marvelist\\public\\Marvel-Opening-Theme.mp4"'/>
 
       <input
         type="file"

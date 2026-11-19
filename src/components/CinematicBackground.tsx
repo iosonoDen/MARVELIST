@@ -8,7 +8,7 @@ interface CinematicBackgroundProps {
 }
 
 export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
-  videoSrc = '/Marvel-Opening-Theme.mp4',
+  videoSrc = '"C:\\Repo\\website-marvelist\\public\\Marvel-Opening-Theme.mp4"',
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState<boolean>(true);
