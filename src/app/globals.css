@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-void: #060709;
+    --bg-surface: rgba(14, 17, 23, 0.72);
+    --bg-surface-elevated: rgba(22, 27, 38, 0.85);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-active: rgba(226, 27, 36, 0.45);
+    --marvel-red: #E21B24;
+    --marvel-red-glow: rgba(226, 27, 36, 0.35);
+    --marvel-gold: #F2A900;
+    --text-primary: #F3F4F6;
+    --text-muted: #9CA3AF;
+  }
+
+  body {
+    background-color: var(--bg-void);
+    color: var(--text-primary);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    overflow-x: hidden;
+  }
+}
+
+.cinematic-blur {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-void);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--marvel-red);
+}
