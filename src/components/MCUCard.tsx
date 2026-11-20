@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { MCUEntry, SupportedLocale, SortMode } from '@/types/mcu';
-import { StarRating } from '@/components/StarRating';
-import { Poster } from '@/components/Poster';
-import { CheckCircle2, Circle } from 'lucide-react';
+import { CheckCircle2, Circle } from "lucide-react";
+import type React from "react";
+import { Poster } from "@/components/Poster";
+import { StarRating } from "@/components/StarRating";
+import type { MCUEntry, SortMode, SupportedLocale } from "@/types/mcu";
+import { formatPhase } from "@/utils/phase";
 
 interface MCUCardProps {
   entry: MCUEntry;
@@ -23,60 +24,85 @@ export const MCUCard: React.FC<MCUCardProps> = ({
   onToggleWatch,
   onRate,
 }) => {
+  const isItalian = locale === "it";
+
+  const watchLabel = entry.watched
+    ? isItalian
+      ? "Segna come non visto"
+      : "Mark as unwatched"
+    : isItalian
+      ? "Segna come visto"
+      : "Mark as watched";
+
+  const typeLabel =
+    entry.type === "movie"
+      ? isItalian
+        ? "Film"
+        : "Movie"
+      : isItalian
+        ? "Serie"
+        : "Series";
+
   return (
-    <article
-      onClick={() => onOpenDetail(entry)}
-      className="group relative flex flex-col rounded-2xl overflow-hidden bg-[#0A0D14]/90 border border-white/10 hover:border-[#E21B24]/70 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-[0_12px_32px_rgba(226,27,36,0.3)] hover:-translate-y-1 font-sans"
-    >
-      <div className="relative aspect-[2/3] w-full overflow-hidden bg-neutral-950">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0A0D14]/90 font-sans shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-[#E21B24]/70 hover:shadow-[0_12px_32px_rgba(226,27,36,0.3)]">
+      <div className="relative aspect-2/3 w-full overflow-hidden bg-neutral-950">
         <Poster
           entry={entry}
           locale={locale}
           className="transition-transform duration-500 ease-out group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90" />
+        <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent opacity-90" />
 
-        <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[#E21B24] text-[10px] font-black tracking-wider uppercase border border-white/10 shadow-sm">
-          {entry.phase}
+        <button
+          type="button"
+          onClick={() => onOpenDetail(entry)}
+          className="absolute inset-0 z-10 h-full w-full cursor-pointer border-0 bg-transparent p-0"
+          aria-label={
+            isItalian
+              ? `Apri i dettagli di ${entry.title[locale]}`
+              : `Open details for ${entry.title[locale]}`
+          }
+        />
+
+        <span className="pointer-events-none absolute top-2.5 left-2.5 rounded-md border border-white/10 bg-black/80 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#E21B24] shadow-sm backdrop-blur-md">
+          {formatPhase(entry.phase, locale)}
         </span>
 
         <button
           type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleWatch(entry.id);
-          }}
-          className="absolute top-2.5 right-2.5 p-1.5 rounded-full bg-black/60 hover:bg-black/90 text-white/80 hover:text-white transition-all backdrop-blur-sm"
-          title={entry.watched ? 'Segna come da vedere' : 'Segna come visto'}
-          aria-label={entry.watched ? 'Segna come non visto' : 'Segna come visto'}
+          onClick={() => onToggleWatch(entry.id)}
+          className="absolute top-2.5 right-2.5 z-20 rounded-full bg-black/60 p-1.5 text-white/80 backdrop-blur-sm transition-all hover:bg-black/90 hover:text-white"
+          title={watchLabel}
+          aria-label={watchLabel}
         >
           {entry.watched ? (
-            <CheckCircle2 size={18} className="text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
+            <CheckCircle2
+              size={18}
+              className="text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.7)]"
+            />
           ) : (
             <Circle size={18} className="text-neutral-400 hover:text-white" />
           )}
         </button>
 
-        <div className="absolute bottom-2.5 left-3 right-3 text-left pointer-events-none">
-          <span className="text-[11px] font-semibold text-neutral-400 block tracking-wide uppercase mb-0.5">
-            {sortMode === 'timeline' ? entry.timelineYear : entry.releaseYear}
+        <div className="pointer-events-none absolute right-3 bottom-2.5 left-3 text-left">
+          <span className="mb-0.5 block text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
+            {sortMode === "timeline" ? entry.timelineYear : entry.releaseYear}
           </span>
-          <h3 className="text-sm font-extrabold text-white leading-snug line-clamp-1 group-hover:text-red-400 transition-colors tracking-tight">
+          <h3 className="line-clamp-1 text-sm font-extrabold leading-snug tracking-tight text-white transition-colors group-hover:text-red-400">
             {entry.title[locale]}
           </h3>
         </div>
       </div>
 
-      <div className="p-3 bg-neutral-950/85 border-t border-white/5 flex items-center justify-between">
-        <div onClick={(e) => e.stopPropagation()}>
-          <StarRating
-            value={entry.rating}
-            size="sm"
-            onChange={(r) => onRate(entry.id, r)}
-          />
-        </div>
-        <span className="text-[10px] text-neutral-400 uppercase tracking-wider font-bold bg-neutral-900 px-2 py-0.5 rounded-md border border-white/5">
-          {entry.type === 'movie' ? 'Film' : 'Serie'}
+      <div className="flex items-center justify-between border-t border-white/5 bg-neutral-950/85 p-3">
+        <StarRating
+          value={entry.rating}
+          size="sm"
+          onChange={(rating) => onRate(entry.id, rating)}
+        />
+        <span className="rounded-md border border-white/5 bg-neutral-900 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+          {typeLabel}
         </span>
       </div>
     </article>

@@ -106,7 +106,7 @@ export const GlobalProgressHeader: React.FC<GlobalProgressHeaderProps> = ({
               className="text-neutral-400"
               aria-hidden="true"
             />
-            <span className="hidden sm:inline">.XLSX</span>
+            <span className="hidden sm:inline">Export .xlsx</span>
           </button>
 
           <button
@@ -119,9 +119,7 @@ export const GlobalProgressHeader: React.FC<GlobalProgressHeaderProps> = ({
             }
           >
             <Upload size={14} className="text-neutral-400" aria-hidden="true" />
-            <span className="hidden sm:inline">
-              {locale === "it" ? "Importa" : "Import"}
-            </span>
+            <span className="hidden sm:inline">Import .xlsx</span>
           </button>
 
           <button
