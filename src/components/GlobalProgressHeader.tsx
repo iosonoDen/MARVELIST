@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import { Download, Globe, Upload } from "lucide-react";
 import Image from "next/image";
-import { SupportedLocale } from "@/types/mcu";
-import { Globe, Download, Upload } from "lucide-react";
+import type React from "react";
+import type { SupportedLocale } from "@/types/mcu";
 
 interface GlobalProgressHeaderProps {
   totalCount: number;
@@ -31,7 +31,7 @@ export const GlobalProgressHeader: React.FC<GlobalProgressHeaderProps> = ({
         <div className="flex items-center gap-3.5">
           <div className="flex items-center gap-1.5 focus:outline-none">
             <div className="flex items-center gap-1 focus:outline-none">
-              <div className="relative h-8 w-[82px] flex items-center shadow-[0_0_24px_rgba(226,27,36,0.45)]">
+              <div className="relative h-8 w-20.5 flex items-center shadow-[0_0_24px_rgba(226,27,36,0.45)]">
                 <Image
                   src="/marvel-logo.svg"
                   alt="Marvel Logo"
@@ -74,14 +74,14 @@ export const GlobalProgressHeader: React.FC<GlobalProgressHeaderProps> = ({
             </div>
           </div>
           <div
-            className="w-full h-2 rounded-full bg-neutral-900 border border-white/10 overflow-hidden p-[1px]"
+            className="w-full h-2 rounded-full bg-neutral-900 border border-white/10 overflow-hidden p-px"
             role="progressbar"
             aria-valuenow={percentage}
             aria-valuemin={0}
             aria-valuemax={100}
           >
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#8B0000] via-[#E21B24] to-[#FF4D4D] transition-all duration-700 ease-out shadow-[0_0_12px_rgba(226,27,36,0.8)]"
+              className="h-full rounded-full bg-linear-to-r from-[#8B0000] via-[#E21B24] to-[#FF4D4D] transition-all duration-700 ease-out shadow-[0_0_12px_rgba(226,27,36,0.8)]"
               style={{ width: `${percentage}%` }}
             />
           </div>
@@ -89,31 +89,51 @@ export const GlobalProgressHeader: React.FC<GlobalProgressHeaderProps> = ({
 
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={onExportXLSX}
             className="p-2 sm:px-3 sm:py-2 rounded-lg bg-neutral-900/90 border border-white/10 hover:border-red-600/40 text-neutral-300 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5"
             title={
               locale === "it" ? "Esporta come file .xlsx" : "Export as .xlsx"
             }
+            aria-label={
+              locale === "it"
+                ? "Esporta come file Excel"
+                : "Export as Excel file"
+            }
           >
-            <Download size={14} className="text-neutral-400" />
+            <Download
+              size={14}
+              className="text-neutral-400"
+              aria-hidden="true"
+            />
             <span className="hidden sm:inline">.XLSX</span>
           </button>
 
           <button
+            type="button"
             onClick={onTriggerImport}
             className="p-2 sm:px-3 sm:py-2 rounded-lg bg-neutral-900/90 border border-white/10 hover:border-red-600/40 text-neutral-300 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5"
             title={locale === "it" ? "Importa file .xlsx" : "Import .xlsx"}
+            aria-label={
+              locale === "it" ? "Importa file Excel" : "Import Excel file"
+            }
           >
-            <Upload size={14} className="text-neutral-400" />
-            <span className="hidden sm:inline">Import</span>
+            <Upload size={14} className="text-neutral-400" aria-hidden="true" />
+            <span className="hidden sm:inline">
+              {locale === "it" ? "Importa" : "Import"}
+            </span>
           </button>
 
           <button
+            type="button"
             onClick={onToggleLocale}
             className="px-3 py-2 rounded-lg bg-neutral-900/90 border border-white/10 hover:border-white/30 text-neutral-200 text-xs font-bold flex items-center gap-1.5 transition-all"
-            title={locale === "it" ? "Switch to English" : "Passa all'Italiano"}
+            title={locale === "it" ? "Switch to English" : "Passa all’italiano"}
+            aria-label={
+              locale === "it" ? "Switch to English" : "Passa all’italiano"
+            }
           >
-            <Globe size={14} className="text-red-500" />
+            <Globe size={14} className="text-red-500" aria-hidden="true" />
             <span>{locale.toUpperCase()}</span>
           </button>
         </div>

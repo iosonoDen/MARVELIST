@@ -1,31 +1,60 @@
-'use client';
+"use client";
 
-import React, { useRef, useState, useEffect } from 'react';
-import { Volume2, VolumeX, Eye, EyeOff } from 'lucide-react';
+import {Eye, EyeOff, Volume2, VolumeX} from "lucide-react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+function subscribeToReducedMotion(onChange: () => void) {
+  const mediaQuery = window.matchMedia(REDUCED_MOTION_QUERY);
+
+  mediaQuery.addEventListener("change", onChange);
+
+  return () => {
+    mediaQuery.removeEventListener("change", onChange);
+  };
+}
+
+function getReducedMotionSnapshot() {
+  return window.matchMedia(REDUCED_MOTION_QUERY).matches;
+}
+
+function getReducedMotionServerSnapshot() {
+  return true;
+}
 
 interface CinematicBackgroundProps {
   videoSrc?: string;
 }
 
 export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
-  videoSrc = '"C:\\Repo\\website-marvelist\\public\\Marvel-Opening-Theme.mp4"',
+  videoSrc = "/Marvel-Opening-Theme.mp4",
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState<boolean>(true);
-  const [videoDisabled, setVideoDisabled] = useState<boolean>(false);
-  const [hasError, setHasError] = useState<boolean>(false);
+  const prefersReducedMotion = useSyncExternalStore(
+    subscribeToReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot,
+  );
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (mediaQuery.matches) {
-      setVideoDisabled(true);
-    }
-  }, []);
+  const [videoOverride, setVideoOverride] = useState<boolean | null>(null);
+
+  const videoDisabled = videoOverride ?? prefersReducedMotion;
+  const [hasError, setHasError] = useState<boolean>(false);
 
   useEffect(() => {
     if (videoRef.current && !videoDisabled && !hasError) {
       videoRef.current.play().catch((err) => {
-        console.info('Autoplay bloccato dal browser o in attesa di interazione:', err);
+        console.info(
+          "Autoplay bloccato dal browser o in attesa di interazione:",
+          err,
+        );
       });
     }
   }, [videoDisabled, hasError]);
@@ -38,12 +67,17 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
   };
 
   const handleVideoError = () => {
-    console.warn(`Video background non disponibile al percorso "${videoSrc}", fallback su gradiente cinematico.`);
+    console.warn(
+      `Video background non disponibile al percorso "${videoSrc}", fallback su gradiente cinematico.`,
+    );
     setHasError(true);
   };
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+    <div
+      className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
+      aria-hidden="true"
+    >
       {!videoDisabled && !hasError ? (
         <video
           ref={videoRef}
@@ -56,7 +90,7 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
           className="absolute inset-0 w-full h-full object-cover filter blur-[28px] brightness-[0.25] contrast-[1.25] scale-105 transition-opacity duration-1000"
         />
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-b from-[#180508] via-[#08090C] to-[#040405] opacity-95" />
+        <div className="absolute inset-0 bg-linear-to-b from-[#180508] via-[#08090C] to-[#040405] opacity-95" />
       )}
 
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#060709_90%)]" />
@@ -68,17 +102,21 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
             type="button"
             onClick={toggleAudio}
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-900/80 border border-white/10 hover:border-red-600/50 text-xs font-semibold uppercase tracking-wider text-neutral-200 hover:text-white cinematic-blur transition-all shadow-md"
-            title={isMuted ? 'Attiva audio intro' : 'Disattiva audio'}
+            title={isMuted ? "Attiva audio intro" : "Disattiva audio"}
           >
-            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} className="text-red-500 animate-pulse" />}
-            <span>{isMuted ? 'Audio OFF' : 'Audio ON'}</span>
+            {isMuted ? (
+              <VolumeX size={14} />
+            ) : (
+              <Volume2 size={14} className="text-red-500 animate-pulse" />
+            )}
+            <span>{isMuted ? "Audio OFF" : "Audio ON"}</span>
           </button>
         )}
         <button
           type="button"
-          onClick={() => setVideoDisabled(!videoDisabled)}
+          onClick={() => setVideoOverride(!videoDisabled)}
           className="p-2 rounded-full bg-neutral-900/80 border border-white/10 hover:border-white/30 text-neutral-300 hover:text-white cinematic-blur transition-all shadow-md"
-          title={videoDisabled ? 'Attiva video background' : 'Disattiva video'}
+          title={videoDisabled ? "Attiva video background" : "Disattiva video"}
         >
           {videoDisabled ? <Eye size={14} /> : <EyeOff size={14} />}
         </button>
