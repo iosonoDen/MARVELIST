@@ -1,13 +1,15 @@
 "use client";
 
-import { Calendar, Clock, Search } from "lucide-react";
+import { Calendar, Clock, LayoutGrid, List, Search } from "lucide-react";
 import type React from "react";
 import { useMemo, useRef, useState } from "react";
 import { CinematicBackground } from "@/components/CinematicBackground";
 import { DetailModal } from "@/components/DetailModal";
 import { GlobalProgressHeader } from "@/components/GlobalProgressHeader";
 import { MCUCard } from "@/components/MCUCard";
+import { MCUListItem } from "@/components/MCUListItem";
 import { INITIAL_MCU_DATABASE, MCU_PHASES } from "@/data/mcu-canon";
+import { useViewMode, type ViewMode } from "@/hooks/useViewMode";
 import { useWatchlistStorage } from "@/hooks/useWatchlistStorage";
 import type { FilterStatus, FilterType, MCUEntry, SortMode } from "@/types/mcu";
 import { exportToMCUExcel, parseMCUExcel } from "@/utils/excel-sync";
@@ -15,6 +17,7 @@ import { exportToMCUExcel, parseMCUExcel } from "@/utils/excel-sync";
 export default function MCUWatchlistApp() {
   const { entries, setEntries, locale, setLocale } =
     useWatchlistStorage(INITIAL_MCU_DATABASE);
+  const { viewMode, setViewMode } = useViewMode();
   const [importMessage, setImportMessage] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<SortMode>("timeline");
   const [filterType, setFilterType] = useState<FilterType>("all");
@@ -152,35 +155,73 @@ export default function MCUWatchlistApp() {
               />
             </div>
 
-            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-neutral-900/80 border border-white/10 text-xs w-full md:w-auto justify-center">
-              <button
-                type="button"
-                onClick={() => setSortMode("timeline")}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-all text-xs font-bold ${
-                  sortMode === "timeline"
-                    ? "bg-[#E21B24] text-white shadow-[0_0_12px_rgba(226,27,36,0.6)]"
-                    : "text-neutral-400 hover:text-white"
-                }`}
-              >
-                <Clock size={14} />
-                <span>
-                  {locale === "it" ? "Timeline Canonica" : "MCU Timeline"}
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSortMode("release")}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-all text-xs font-bold ${
-                  sortMode === "release"
-                    ? "bg-[#E21B24] text-white shadow-[0_0_12px_rgba(226,27,36,0.6)]"
-                    : "text-neutral-400 hover:text-white"
-                }`}
-              >
-                <Calendar size={14} />
-                <span>
-                  {locale === "it" ? "Data di Uscita" : "Release Date"}
-                </span>
-              </button>
+            <div className="flex w-full flex-wrap items-center justify-center gap-3 md:w-auto md:flex-nowrap">
+              <div className="flex flex-1 items-center justify-center gap-1.5 p-1 rounded-xl bg-neutral-900/80 border border-white/10 text-xs md:flex-none">
+                <button
+                  type="button"
+                  onClick={() => setSortMode("timeline")}
+                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-all text-xs font-bold ${
+                    sortMode === "timeline"
+                      ? "bg-[#E21B24] text-white shadow-[0_0_12px_rgba(226,27,36,0.6)]"
+                      : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  <Clock size={14} />
+                  <span>
+                    {locale === "it" ? "Timeline Canonica" : "MCU Timeline"}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSortMode("release")}
+                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-all text-xs font-bold ${
+                    sortMode === "release"
+                      ? "bg-[#E21B24] text-white shadow-[0_0_12px_rgba(226,27,36,0.6)]"
+                      : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  <Calendar size={14} />
+                  <span>
+                    {locale === "it" ? "Data di Uscita" : "Release Date"}
+                  </span>
+                </button>
+              </div>
+
+              <fieldset
+  aria-label={
+    locale === "it" ? "Modalità di visualizzazione" : "View mode"
+  }
+  className="flex items-center gap-1 rounded-xl border border-white/10 bg-neutral-900/80 p-1"
+>
+                {(["grid", "list"] as ViewMode[]).map((mode) => {
+                  const Icon = mode === "grid" ? LayoutGrid : List;
+                  const label =
+                    mode === "grid"
+                      ? locale === "it"
+                        ? "Griglia"
+                        : "Grid"
+                      : locale === "it"
+                        ? "Lista"
+                        : "List";
+                  return (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setViewMode(mode)}
+                      aria-pressed={viewMode === mode}
+                      aria-label={label}
+                      title={label}
+                      className={`rounded-lg p-2 transition-all ${
+                        viewMode === mode
+                          ? "bg-[#E21B24] text-white shadow-[0_0_12px_rgba(226,27,36,0.6)]"
+                          : "text-neutral-400 hover:text-white"
+                      }`}
+                    >
+                      <Icon size={16} aria-hidden="true" />
+                    </button>
+                  );
+                })}
+              </fieldset>
             </div>
           </div>
 
@@ -198,10 +239,9 @@ export default function MCUWatchlistApp() {
                   }`}
                 >
                   {type === "all" && (locale === "it" ? "Tutti" : "All")}
-                  {type === "movie" &&
-                    (locale === "it" ? "Solo Film" : "Movies")}
+                  {type === "movie" && (locale === "it" ? "Film" : "Movies")}
                   {type === "series" &&
-                    (locale === "it" ? "Solo Serie TV" : "TV Series")}
+                    (locale === "it" ? "Serie TV" : "TV Series")}
                 </button>
               ))}
             </div>
@@ -273,10 +313,24 @@ export default function MCUWatchlistApp() {
                   : "No entries found matching the active criteria."}
               </p>
             </div>
-          ) : (
+          ) : viewMode === "grid" ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
               {filteredEntries.map((entry) => (
                 <MCUCard
+                  key={entry.id}
+                  entry={entry}
+                  locale={locale}
+                  sortMode={sortMode}
+                  onOpenDetail={setActiveEntry}
+                  onToggleWatch={handleToggleWatch}
+                  onRate={handleRate}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2.5">
+              {filteredEntries.map((entry) => (
+                <MCUListItem
                   key={entry.id}
                   entry={entry}
                   locale={locale}
@@ -293,19 +347,17 @@ export default function MCUWatchlistApp() {
 
       <footer className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 text-center text-xs text-neutral-500 font-medium">
         {locale === "it"
-          ? "Poster, cast e metadati da "
-          : "Posters, cast and metadata from "}
+          ? "I Posters, Cast e Metadati da "
+          : "The Posters, Cast and Metadata from "}
         <a
           href="https://www.themoviedb.org/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[#01b4e4] hover:underline font-semibold"
+          className="text-[#ff0000] hover:underline font-semibold"
         >
           TMDB
         </a>
-        {locale === "it"
-          ? ". Questo prodotto usa dati TMDB ma non è approvato né certificato da TMDB."
-          : ". This product uses TMDB data but is not endorsed or certified by TMDB."}
+        {locale === "it" ? "." : "."}
       </footer>
 
       <DetailModal

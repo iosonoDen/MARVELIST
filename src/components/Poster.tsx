@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import type React from "react";
 import { useEffect, useState } from "react";
 
@@ -73,9 +74,12 @@ export const Poster: React.FC<PosterProps> = ({
 
   if (src && failedSrc !== src) {
     return (
-      <img
+      <Image
         src={src}
         alt={entry.title[locale]}
+        width={500}
+        height={750}
+        unoptimized
         className={`h-full w-full object-cover ${className}`}
         loading="lazy"
         onError={() => setFailedSrc(src)}
