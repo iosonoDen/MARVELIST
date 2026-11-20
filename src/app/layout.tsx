@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'MARVELIST — Cinematic MCU Architecture & Watchlist',
-  description: 'Traccia la visione canonica del Marvel Cinematic Universe con statistiche in tempo reale, timeline in-universe e preview trailer.',
+  title: 'MARVELIST',
+  description: 'A MARVEL movies and series watchlist',
 };
 
 export default function RootLayout({

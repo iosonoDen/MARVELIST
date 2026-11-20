@@ -36,8 +36,20 @@ export const MCUCard: FC<MCUCardProps> = ({
         : "Series";
 
   const borderClass = entry.watched
-    ? "border-emerald-400/40 hover:border-emerald-400/70 hover:shadow-[0_12px_32px_rgba(16,185,129,0.25)]"
+    ? "border-emerald-400/50 hover:border-emerald-400/70 hover:shadow-[0_12px_32px_rgba(16,185,129,0.2)]"
     : "border-white/10 hover:border-[#E21B24]/70 hover:shadow-[0_12px_32px_rgba(226,27,36,0.3)]";
+
+  const phaseClass = entry.watched
+    ? "border-emerald-400/50 text-emerald-400"
+    : "border-white/10 text-[#E21B24]";
+
+  const titleClass = entry.watched
+    ? "text-emerald-300 group-hover:text-emerald-200"
+    : "text-white group-hover:text-red-400";
+
+  const footerClass = entry.watched
+    ? "border-emerald-400/20 bg-emerald-950/50"
+    : "border-white/5 bg-neutral-950/85";
 
   return (
     <article
@@ -53,7 +65,7 @@ export const MCUCard: FC<MCUCardProps> = ({
 
         <div
           aria-hidden="true"
-          className={`pointer-events-none absolute inset-0 bg-emerald-500/25 shadow-[inset_0_0_0_2px_rgba(52,211,153,0.35)] transition-opacity duration-500 ease-out motion-reduce:transition-none ${
+          className={`pointer-events-none absolute inset-0 bg-emerald-500/8 shadow-[inset_0_0_0_2px_rgba(52,211,153,0.45)] transition-opacity duration-500 ease-out motion-reduce:transition-none ${
             entry.watched ? "opacity-100" : "opacity-0"
           }`}
         />
@@ -69,7 +81,9 @@ export const MCUCard: FC<MCUCardProps> = ({
           }
         />
 
-        <span className="pointer-events-none absolute top-2.5 left-2.5 rounded-md border border-white/10 bg-black/80 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#E21B24] shadow-sm backdrop-blur-md">
+        <span
+          className={`pointer-events-none absolute top-2.5 left-2.5 rounded-md border bg-black/80 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider shadow-sm backdrop-blur-md transition-colors duration-500 motion-reduce:transition-none ${phaseClass}`}
+        >
           {formatPhase(entry.phase, locale)}
         </span>
 
@@ -77,13 +91,17 @@ export const MCUCard: FC<MCUCardProps> = ({
           <span className="mb-0.5 block text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
             {sortMode === "timeline" ? entry.timelineYear : entry.releaseYear}
           </span>
-          <h3 className="line-clamp-1 text-sm font-extrabold leading-snug tracking-tight text-white transition-colors group-hover:text-red-400">
+          <h3
+            className={`line-clamp-1 text-sm font-extrabold leading-snug tracking-tight transition-colors duration-500 motion-reduce:transition-none ${titleClass}`}
+          >
             {entry.title[locale]}
           </h3>
         </div>
       </div>
 
-      <div className="flex flex-col gap-2.5 border-t border-white/5 bg-neutral-950/85 p-3">
+      <div
+        className={`flex flex-col gap-2.5 border-t p-3 transition-colors duration-500 motion-reduce:transition-none ${footerClass}`}
+      >
         <div className="flex items-center justify-between">
           <StarRating
             value={entry.rating}

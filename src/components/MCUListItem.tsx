@@ -36,8 +36,16 @@ export const MCUListItem: FC<MCUListItemProps> = ({
         : "Series";
 
   const borderClass = entry.watched
-    ? "border-emerald-400/40 hover:border-emerald-400/70"
+    ? "border-emerald-400/50 hover:border-emerald-400/70"
     : "border-white/10 hover:border-[#E21B24]/70";
+
+  const phaseClass = entry.watched
+    ? "border-emerald-400/50 text-emerald-400"
+    : "border-white/10 text-[#E21B24]";
+
+  const titleClass = entry.watched
+    ? "text-emerald-300 group-hover:text-emerald-200"
+    : "text-white group-hover:text-red-400";
 
   const tintBase =
     "pointer-events-none absolute inset-0 transition-opacity duration-500 ease-out motion-reduce:transition-none";
@@ -49,7 +57,7 @@ export const MCUListItem: FC<MCUListItemProps> = ({
     >
       <div
         aria-hidden="true"
-        className={`${tintBase} bg-emerald-500/10 ${tintState}`}
+        className={`${tintBase} bg-emerald-500/5 ${tintState}`}
       />
 
       <button
@@ -67,7 +75,7 @@ export const MCUListItem: FC<MCUListItemProps> = ({
         <Poster entry={entry} locale={locale} />
         <div
           aria-hidden="true"
-          className={`${tintBase} bg-emerald-500/30 shadow-[inset_0_0_0_2px_rgba(52,211,153,0.35)] ${tintState}`}
+          className={`${tintBase} bg-emerald-500/8 shadow-[inset_0_0_0_2px_rgba(52,211,153,0.45)] ${tintState}`}
         />
       </div>
 
@@ -75,11 +83,15 @@ export const MCUListItem: FC<MCUListItemProps> = ({
         <span className="block text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
           {sortMode === "timeline" ? entry.timelineYear : entry.releaseYear}
         </span>
-        <h3 className="truncate text-sm font-extrabold leading-snug tracking-tight text-white transition-colors group-hover:text-red-400 sm:text-base">
+        <h3
+          className={`truncate text-sm font-extrabold leading-snug tracking-tight transition-colors duration-500 motion-reduce:transition-none sm:text-base ${titleClass}`}
+        >
           {entry.title[locale]}
         </h3>
         <div className="mt-1 flex flex-wrap items-center gap-1.5">
-          <span className="rounded-md border border-white/10 bg-black/60 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#E21B24]">
+          <span
+            className={`rounded-md border bg-black/60 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider transition-colors duration-500 motion-reduce:transition-none ${phaseClass}`}
+          >
             {formatPhase(entry.phase, locale)}
           </span>
           <span className="rounded-md border border-white/5 bg-neutral-900 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
