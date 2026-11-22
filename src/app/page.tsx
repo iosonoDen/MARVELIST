@@ -13,6 +13,7 @@ import { useViewMode, type ViewMode } from "@/hooks/useViewMode";
 import { useWatchlistStorage } from "@/hooks/useWatchlistStorage";
 import type { FilterStatus, FilterType, MCUEntry, SortMode } from "@/types/mcu";
 import { exportToMCUExcel, parseMCUExcel } from "@/utils/excel-sync";
+import { formatPhase } from "@/utils/phase";
 
 export default function MCUWatchlistApp() {
   const { entries, setEntries, locale, setLocale } =
@@ -280,7 +281,7 @@ export default function MCUWatchlistApp() {
               </option>
               {MCU_PHASES.map((phase) => (
                 <option key={phase} value={phase}>
-                  {phase}
+                  {formatPhase(phase, locale)}
                 </option>
               ))}
             </select>

@@ -15,6 +15,8 @@ import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 import { Poster } from "@/components/Poster";
 import { StarRating } from "@/components/StarRating";
+import { TRAILERS, youtubeWatchUrl } from "@/data/trailers";
+import { formatPhase } from "@/utils/phase";
 
 import type { MCUEntry, SupportedLocale } from "@/types/mcu";
 
@@ -51,7 +53,7 @@ export function DetailModal({
   const tmdbType = entry?.tmdbType;
 
   const castKey =
-    tmdbId && tmdbType ? JSON.stringify([tmdbType, tmdbId]) : null;
+    tmdbId && tmdbType ? JSON.stringify([tmdbType, tmdbId, locale]) : null;
 
   const fallbackCast: CastMember[] = (entry?.topCast ?? []).map(
     (actor, index) => ({
@@ -100,6 +102,7 @@ export function DetailModal({
         const params = new URLSearchParams({
           id: String(tmdbId),
           type: String(tmdbType),
+          lang: locale,
         });
 
         const response = await fetch(`/api/tmdb/credits?${params.toString()}`, {
@@ -136,13 +139,33 @@ export function DetailModal({
       ignore = true;
       controller.abort();
     };
-  }, [isOpen, tmdbId, tmdbType, castKey]);
+  }, [isOpen, tmdbId, tmdbType, castKey, locale]);
 
   if (!isOpen || !entry) return null;
 
-  const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(
-    entry.trailerQuery,
-  )}`;
+  // Trailer ufficiale: prima il canale della lingua scelta, poi l'altro, infine la ricerca su YouTube.
+  const trailers = TRAILERS[entry.slug] ?? {};
+  const otherLocale = locale === "it" ? "en" : "it";
+  const trailerLocale = trailers[locale]
+    ? locale
+    : trailers[otherLocale]
+      ? otherLocale
+      : null;
+  const trailerId = trailerLocale ? trailers[trailerLocale] : undefined;
+  const trailerUrl = trailerId
+    ? youtubeWatchUrl(trailerId)
+    : `https://www.youtube.com/results?search_query=${encodeURIComponent(
+        `${entry.title[locale]} ${locale === "it" ? "trailer italiano" : "official trailer"}`,
+      )}`;
+  const trailerChannel =
+    trailerLocale === "it" ? "Marvel Italia" : "Marvel Entertainment";
+  const trailerLabel = trailerId
+    ? locale === "it"
+      ? `Guarda il trailer ufficiale (${trailerChannel})`
+      : `Watch official trailer (${trailerChannel})`
+    : locale === "it"
+      ? "Cerca il trailer su YouTube"
+      : "Search trailer on YouTube";
 
   return (
     <div
@@ -177,7 +200,7 @@ export function DetailModal({
             <Poster entry={entry} locale={locale} />
             <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-60" />
             <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-[#E21B24] text-white text-[10px] font-black uppercase tracking-wider">
-              {entry.phase}
+              {formatPhase(entry.phase, locale)}
             </span>
           </div>
 
@@ -337,17 +360,13 @@ export function DetailModal({
               </a>
             )}
             <a
-              href={youtubeSearchUrl}
+              href={trailerUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-3 px-4 rounded-xl bg-linear-to-r from-[#CC0000] to-[#E21B24] hover:from-[#B00000] hover:to-[#CC0000] text-white text-xs font-bold tracking-wider uppercase flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(226,27,36,0.4)] transition-all"
             >
               <Youtube size={18} />
-              <span>
-                {locale === "it"
-                  ? "Guarda Trailer Ufficiale (Marvel IT)"
-                  : "Watch Official Trailer (Marvel EN)"}
-              </span>
+              <span>{trailerLabel}</span>
             </a>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { tmdbFetch } from "@/lib/tmdb-server";
 
 interface TMDBImage {
   file_path: string;
@@ -15,16 +16,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ posterUrl: null }, { status: 400 });
   }
 
-  const apiKey = process.env.TMDB_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ posterUrl: null }, { status: 503 });
-  }
-
   try {
-    const response = await fetch(
-      `https://api.themoviedb.org/3/${type}/${id}/images?api_key=${apiKey}&include_image_language=en`,
-      { next: { revalidate: 86400 } },
-    );
+    const response = await tmdbFetch(`/${type}/${id}/images`, {
+      include_image_language: "en",
+    });
+
+    if (!response) {
+      return NextResponse.json({ posterUrl: null }, { status: 503 });
+    }
 
     if (!response.ok) {
       return NextResponse.json({ posterUrl: null }, { status: 502 });

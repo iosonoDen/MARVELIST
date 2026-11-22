@@ -1,15 +1,23 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { resolveLegacyId } from '@/data/legacy-ids';
 import { MCUEntry, SupportedLocale } from '@/types/mcu';
 
 const STORAGE_KEY = 'marvelist:progress:v1';
 
+type ProgressMap = Record<string, { watched: boolean; rating: number }>;
+
 interface StoredProgress {
-  version: 1;
+  /** v1: chiavi `mcu-NN` (posizionali). v2: chiavi = slug. */
+  version: 1 | 2;
   locale?: SupportedLocale;
-  entries: Record<string, { watched: boolean; rating: number }>;
+  entries: ProgressMap;
 }
+
+/** Converte le chiavi dei vecchi salvataggi (`mcu-NN`) negli slug attuali. */
+const migrateKeys = (saved: ProgressMap): ProgressMap =>
+  Object.fromEntries(Object.entries(saved).map(([id, p]) => [resolveLegacyId(id), p]));
 
 /** Applica i progressi salvati (visto/voto) al database di base, ignorando id sconosciuti. */
 const mergeProgress = (base: MCUEntry[], saved: StoredProgress['entries']): MCUEntry[] =>
@@ -36,7 +44,7 @@ export function useWatchlistStorage(base: MCUEntry[]) {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as StoredProgress;
-        if (parsed?.entries) setEntries(mergeProgress(base, parsed.entries));
+        if (parsed?.entries) setEntries(mergeProgress(base, migrateKeys(parsed.entries)));
         if (parsed?.locale === 'it' || parsed?.locale === 'en') setLocale(parsed.locale);
       }
     } catch (err) {
@@ -49,7 +57,7 @@ export function useWatchlistStorage(base: MCUEntry[]) {
   useEffect(() => {
     if (!hydrated.current) return;
     const payload: StoredProgress = {
-      version: 1,
+      version: 2,
       locale,
       entries: Object.fromEntries(entries.map((e) => [e.id, { watched: e.watched, rating: e.rating }])),
     };

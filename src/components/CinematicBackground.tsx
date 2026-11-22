@@ -220,6 +220,8 @@ export const CinematicBackground: FC<CinematicBackgroundProps> = ({
           <video
             ref={videoRef}
             src={videoSrc}
+            poster="/marvel-opening-poster.jpg"
+            preload="auto"
             autoPlay
             loop
             muted

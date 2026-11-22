@@ -19,7 +19,6 @@ export interface MCUEntry {
   timelineOrder: number;
   synopsis: { it: string; en: string; };
   posterUrl: string;
-  trailerQuery: string;
   topCast: CastMember[];
   watched: boolean;
   rating: number;

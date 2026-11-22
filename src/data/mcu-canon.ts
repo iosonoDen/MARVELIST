@@ -1005,9 +1005,9 @@ export const INITIAL_MCU_DATABASE: MCUEntry[] = ROWS.map(
       synEn,
       cast,
     ],
-    i,
   ) => ({
-    id: `mcu-${String(i + 1).padStart(2, "0")}`,
+    // ID stabile = slug: aggiungere o spostare titoli non tocca i progressi salvati.
+    id: slug,
     slug,
     title: { it, en },
     type,
@@ -1018,7 +1018,6 @@ export const INITIAL_MCU_DATABASE: MCUEntry[] = ROWS.map(
     timelineOrder,
     synopsis: { it: synIt, en: synEn },
     posterUrl: tmdbPosterUrl(TMDB_META[slug]?.poster ?? ""),
-    trailerQuery: `${it} trailer ufficiale italiano Marvel Italia`,
     topCast: cast.map(([name, character]) => ({ name, character })),
     watched: false,
     rating: 0,

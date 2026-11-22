@@ -1,4 +1,5 @@
-import {type NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { tmdbFetch } from "@/lib/tmdb-server";
 
 interface TMDBPerson {
   id: number;
@@ -12,54 +13,51 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
   const type = searchParams.get("type") === "tv" ? "tv" : "movie";
+  const language = searchParams.get("lang") === "en" ? "en-US" : "it-IT";
 
-  if (!id) {
+  if (!id || !/^\d+$/.test(id)) {
     return NextResponse.json(
-      { error: "Missing id parameter" },
+      { error: "Missing or invalid id parameter", cast: [] },
       { status: 400 },
     );
   }
 
-  const apiKey = process.env.TMDB_API_KEY;
-  if (!apiKey) {
-    console.error("Variabile TMDB_API_KEY non configurata");
-
-    return NextResponse.json(
-      { error: "Cast service unavailable", cast: [] },
-      { status: 503 },
-    );
-  }
-
-  const endpoint =
-    type === "tv"
-      ? `https://api.themoviedb.org/3/tv/${id}/aggregate_credits?api_key=${apiKey}&language=it-IT`
-      : `https://api.themoviedb.org/3/movie/${id}/credits?api_key=${apiKey}&language=it-IT`;
+  const path =
+    type === "tv" ? `/tv/${id}/aggregate_credits` : `/movie/${id}/credits`;
 
   try {
-    const res = await fetch(endpoint, {
-      next: { revalidate: 86400 },
-    });
+    const res = await tmdbFetch(path, { language });
 
-    if (!res.ok) {
-      return NextResponse.json({ cast: [] }, { status: res.status });
+    if (!res) {
+      console.error("Credenziale TMDB non configurata (TMDB_API_KEY)");
+      return NextResponse.json(
+        { error: "Cast service unavailable", cast: [] },
+        { status: 503 },
+      );
     }
 
-    const data = await res.json();
-    const rawCast: TMDBPerson[] = data.cast || [];
+    if (!res.ok) {
+      console.error(`TMDB credits: HTTP ${res.status} per ${type}/${id}`);
+      return NextResponse.json(
+        { error: "TMDB request failed", cast: [] },
+        { status: 502 },
+      );
+    }
 
-    const cast = rawCast.slice(0, 8).map((p) => {
-      const character = p.character || p.roles?.[0]?.character || "";
-      return {
-        id: p.id,
-        name: p.name,
-        character,
-        photoUrl: p.profile_path
-          ? `https://image.tmdb.org/t/p/w185${p.profile_path}`
-          : null,
-      };
-    });
+    const data: { cast?: TMDBPerson[] } = await res.json();
+    const cast = (data.cast ?? []).slice(0, 8).map((p) => ({
+      id: p.id,
+      name: p.name,
+      character: p.character || p.roles?.[0]?.character || "",
+      photoUrl: p.profile_path
+        ? `https://image.tmdb.org/t/p/w185${p.profile_path}`
+        : null,
+    }));
 
-    return NextResponse.json({ cast });
+    return NextResponse.json(
+      { cast },
+      { headers: { "Cache-Control": "public, max-age=86400" } },
+    );
   } catch (err) {
     console.error("TMDB credits fetch error:", err);
     return NextResponse.json(

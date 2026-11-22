@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+import { resolveLegacyId } from '@/data/legacy-ids';
 import { MCUEntry } from '@/types/mcu';
 
 /**
@@ -115,7 +116,7 @@ export const parseMCUExcel = async (file: File, baseEntries: MCUEntry[]): Promis
     const row = rows[r];
     if (!row || row.every((c) => String(c).trim() === '')) continue;
     const idx =
-      (col.id >= 0 ? byId.get(String(row[col.id]).trim()) : undefined) ??
+      (col.id >= 0 ? byId.get(resolveLegacyId(String(row[col.id]).trim())) : undefined) ??
       (col.title >= 0 ? byTitle.get(normalize(row[col.title])) : undefined);
     if (idx === undefined) continue;
 
