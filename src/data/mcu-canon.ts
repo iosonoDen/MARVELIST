@@ -1,24 +1,14 @@
-import { MCUEntry, MCUPhase, MediaType } from "@/types/mcu";
+import { BEYOND_MCU_ROWS, BEYOND_MCU_UNIVERSE } from "@/data/beyond-mcu";
+import type { Row } from "@/data/rows";
+import { TIMELINE_ORDER } from "@/data/timeline-order";
 import { TMDB_META, tmdbPosterUrl } from "@/data/tmdb";
+import type { MCUEntry, MCUPhase } from "@/types/mcu";
 
 /**
- * Database canonico MCU: 39 film + 18 serie e speciali Disney+ = 57 voci.
- * timelineOrder segue l'ordine cronologico ufficiale Disney+ (approssimato per le uscite più recenti).
+ * Database dei titoli: MCU (66 voci, compresi One-Shot e speciali) + fuori MCU (beyond-mcu.ts, 54 voci).
+ * L'ordine della timeline è in timeline-order.ts (ordine ufficiale Marvel/Disney+ per l'MCU).
  * Poster e ID provengono da TMDB (src/data/tmdb.ts); se un poster non carica, la UI mostra una copertina generata.
  */
-type Row = [
-  slug: string,
-  it: string,
-  en: string,
-  type: MediaType,
-  phase: MCUPhase,
-  releaseDate: string,
-  timelineYear: string,
-  timelineOrder: number,
-  synIt: string,
-  synEn: string,
-  cast: [string, string][],
-];
 
 const ROWS: Row[] = [
   // ───────── FILM ─────────
@@ -988,9 +978,163 @@ const ROWS: Row[] = [
       ["Colman Domingo", "Norman Osborn"],
     ],
   ],
+  // ───────── AGGIUNTI DALLA TIMELINE UFFICIALE ─────────
+  [
+    "eyes-of-wakanda",
+    "Eyes of Wakanda",
+    "Eyes of Wakanda",
+    "series",
+    "Phase 5",
+    "2025-08-01",
+    "",
+    0,
+    "Le missioni segrete degli Hatut Zeraze, guerrieri del Wakanda, attraverso la storia per recuperare manufatti in vibranio.",
+    "The secret missions of the Hatut Zeraze, Wakandan warriors, across history to recover vibranium artifacts.",
+    [
+      ["Terri Douglas", "Additional Voices (voice)"],
+      ["Michael Woodley", "Additional Voices (voice)"],
+      ["David Boat", "Additional Voices (voice)"]
+    ],
+  ],
+  [
+    "one-shot-the-consultant",
+    "Irripetibili Marvel: Il Consulente",
+    "Marvel One-Shot: The Consultant",
+    "movie",
+    "Phase 1",
+    "2011-09-13",
+    "2011",
+    0,
+    "Dopo L'incredibile Hulk, gli agenti Coulson e Sitwell scelgono chi mandare come consulente per l'Iniziativa Vendicatori.",
+    "After The Incredible Hulk, Agents Coulson and Sitwell decide who to send as a consultant for the Avengers Initiative.",
+    [
+      ["Maximiliano Hernández", "Agent Jasper Sitwell"],
+      ["Clark Gregg", "Agent Phil Coulson"],
+      ["Robert Downey Jr.", "Tony Stark (archive footage)"]
+    ],
+  ],
+  [
+    "one-shot-funny-thing-thors-hammer",
+    "Irripetibili Marvel: Scena comica nel raggiungere il martello di Thor",
+    "Marvel One-Shot: A Funny Thing Happened on the Way to Thor's Hammer",
+    "movie",
+    "Phase 1",
+    "2011-10-25",
+    "2010",
+    0,
+    "Prima di Thor, l'agente Coulson si ferma in una stazione di servizio nel New Mexico e sventa una rapina.",
+    "Before Thor, Agent Coulson stops at a gas station in New Mexico and foils a robbery.",
+    [
+      ["Clark Gregg", "Agent Phil Coulson"],
+      ["Jessica Manuel", "Clerk"],
+      ["Jeff Prewett", "Robber 1"]
+    ],
+  ],
+  [
+    "one-shot-item-47",
+    "Irripetibili Marvel: Item 47",
+    "Marvel One-Shot: Item 47",
+    "movie",
+    "Phase 1",
+    "2012-08-29",
+    "2012",
+    0,
+    "Dopo la battaglia di New York, lo S.H.I.E.L.D. dà la caccia a una coppia che usa un'arma Chitauri per rapinare banche.",
+    "After the Battle of New York, S.H.I.E.L.D. hunts a couple using a Chitauri weapon to rob banks.",
+    [
+      ["Lizzy Caplan", "Claire Wise"],
+      ["Jesse Bradford", "Bennie Pollack"],
+      ["Maximiliano Hernández", "Agent Jasper Sitwell"]
+    ],
+  ],
+  [
+    "one-shot-agent-carter",
+    "Irripetibili Marvel: Agente Carter",
+    "Marvel One-Shot: Agent Carter",
+    "movie",
+    "Phase 2",
+    "2013-10-04",
+    "1946",
+    0,
+    "Nel 1946 Peggy Carter, sottovalutata alla SSR, porta a termine da sola una missione per recuperare il siero Zodiac.",
+    "In 1946 Peggy Carter, overlooked at the SSR, single-handedly completes a mission to recover the Zodiac serum.",
+    [
+      ["Hayley Atwell", "Peggy Carter"],
+      ["Bradley Whitford", "John Flynn"],
+      ["Dominic Cooper", "Howard Stark"]
+    ],
+  ],
+  [
+    "one-shot-all-hail-the-king",
+    "Irripetibili Marvel: Viva il Re",
+    "Marvel One-Shot: All Hail the King",
+    "movie",
+    "Phase 2",
+    "2014-02-04",
+    "2013",
+    0,
+    "Dopo Iron Man 3, l'attore Trevor Slattery è in prigione e scopre che il vero Mandarino non ha gradito l'imitazione.",
+    "After Iron Man 3, actor Trevor Slattery is in prison and learns the real Mandarin did not appreciate the impersonation.",
+    [
+      ["Ben Kingsley", "Trevor Slattery"],
+      ["Scoot McNairy", "Jackson Norriss"],
+      ["Lester Speight", "Herman"]
+    ],
+  ],
+  [
+    "i-am-groot",
+    "I Am Groot",
+    "I Am Groot",
+    "series",
+    "Phase 4",
+    "2022-08-10",
+    "",
+    0,
+    "Le avventure di Baby Groot, piccolo e dispettoso, in giro per la galassia.",
+    "The adventures of mischievous little Baby Groot across the galaxy.",
+    [
+      ["Vin Diesel", "Baby Groot (voice)"]
+    ],
+  ],
+  [
+    "the-punisher-one-last-kill",
+    "The Punisher: One Last Kill",
+    "The Punisher: One Last Kill",
+    "movie",
+    "Phase 6",
+    "2026-05-12",
+    "",
+    0,
+    "Frank Castle, segnato dal passato dopo la sua vendetta, viene trascinato in un'ultima missione.",
+    "Haunted by his past after his revenge, Frank Castle is pulled into one last mission.",
+    [
+      ["Jon Bernthal", "Frank Castle"],
+      ["Deborah Ann Woll", "Karen Page"],
+      ["Jason R. Moore", "Curtis Hoyle"]
+    ],
+  ],
+  [
+    "visionquest",
+    "VisionQuest",
+    "VisionQuest",
+    "series",
+    "Phase 6",
+    "2026-10-13",
+    "",
+    0,
+    "Visione, ricostruito e in fuga da chi voleva usarlo come arma, cerca di recuperare la propria identità.",
+    "Rebuilt and on the run from those who wanted to make him a weapon, Vision tries to reclaim his identity.",
+    [
+      ["Paul Bettany", "Vision"],
+      ["James Spader", "Ultron"],
+      ["Ruaridh Mollica", "Thomas"]
+    ],
+  ],
 ];
 
-export const INITIAL_MCU_DATABASE: MCUEntry[] = ROWS.map(
+const TIMELINE_INDEX = new Map(TIMELINE_ORDER.map((slug, i) => [slug, i + 1]));
+
+export const INITIAL_MCU_DATABASE: MCUEntry[] = [...ROWS, ...BEYOND_MCU_ROWS].map(
   (
     [
       slug,
@@ -1015,7 +1159,9 @@ export const INITIAL_MCU_DATABASE: MCUEntry[] = ROWS.map(
     releaseYear: Number(releaseDate.slice(0, 4)),
     releaseDate,
     timelineYear,
-    timelineOrder,
+    // Posizione nella timeline canonica; i titoli non elencati vanno in fondo
+    timelineOrder: TIMELINE_INDEX.get(slug) ?? 1000 + timelineOrder,
+    universe: BEYOND_MCU_UNIVERSE[slug] ?? "mcu",
     synopsis: { it: synIt, en: synEn },
     posterUrl: tmdbPosterUrl(TMDB_META[slug]?.poster ?? ""),
     topCast: cast.map(([name, character]) => ({ name, character })),

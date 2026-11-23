@@ -2,6 +2,9 @@
 
 ## Non rilasciato
 ### Added
+- 54 titoli Marvel fuori dall'MCU: Spider-Man Sony (Tobey e Andrew), universo Sony, X-Men Fox, Fantastici 4 Fox, serie Netflix, Marvel Television e altri film. Contano nella percentuale e nei gradi.
+- 9 titoli MCU della timeline ufficiale: Eyes of Wakanda, I Am Groot, i 5 One-Shot, The Punisher: One Last Kill, VisionQuest. Totale: 120 titoli.
+- Filtro "Universo" (MCU, fuori MCU, Netflix, X-Men Fox, Spider-Man Sony…).
 - Login facoltativo con Google (Clerk): pulsante utente nell'header con menu Accedi / Registrati, pagine `/login-page` e `/signup-page` con locandine in movimento.
 - Sincronizzazione dei progressi nell'account: al primo accesso unisce browser e account, poi salva ogni modifica.
 - Avviso "Hai segnato 3 titoli!" sotto il pulsante utente (5 secondi, una sola volta, solo senza account).
@@ -16,7 +19,12 @@
 - Route `/api/tmdb/credits`: validazione dell'`id` numerico e cast nella lingua scelta (IT/EN).
 - Foto del cast e poster in inglese: le route TMDB accettano sia la API Key v3 sia il Read Access Token v4.
 - Etichetta della fase tradotta ("Fase 1" / "Phase 1") nel dettaglio e nel filtro delle fasi.
+### Removed
+- Export e import Excel (`.xlsx`) e la libreria `xlsx`: i progressi si sincronizzano con il login.
+
 ### Changed
+- Timeline canonica: ordine ufficiale Marvel/Disney+ per l'MCU (serie Netflix incluse); i titoli fuori MCU sono inseriti per anno di ambientazione.
+- Barra: niente "100%", tappe 20/40/60/80 più tenui; frase centrata; "Prossimo da vedere" più grande.
 - La barra di progresso non è più nell'header.
 - I controlli del video di sfondo sono in basso a destra.
 - Pulsante trailer: link diretto al video ufficiale su YouTube (Marvel Italia in IT, Marvel Entertainment in EN) per 54 titoli su 57, verificati uno per uno. Se manca la versione italiana si usa quella inglese. Per Iron Man, L'incredibile Hulk e Iron Man 2 resta la ricerca su YouTube.

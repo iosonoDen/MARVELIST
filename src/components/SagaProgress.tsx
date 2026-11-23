@@ -7,7 +7,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   byTimeline,
   MILESTONES,
-  RANKS,
   type Rank,
   rankAt,
   type SagaProgressStats,
@@ -78,18 +77,18 @@ const NextUp: React.FC<{
   if (!entry) return null;
   const it = locale === "it";
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-neutral-900/70 p-2.5 pr-3">
+    <div className="flex w-full items-center gap-4 rounded-xl border border-white/10 bg-neutral-900/70 p-3 pr-4">
       <button
         type="button"
         onClick={() => onOpenDetail(entry)}
-        className="relative h-16 w-11 shrink-0 overflow-hidden rounded-md border border-white/10"
+        className="relative aspect-2/3 w-[84px] shrink-0 overflow-hidden rounded-lg border border-white/10"
         aria-label={entry.title[locale]}
       >
         <Image
           src={entry.posterUrl}
           alt=""
           fill
-          sizes="44px"
+          sizes="84px"
           className="object-cover"
         />
       </button>
@@ -97,21 +96,21 @@ const NextUp: React.FC<{
         <p className="text-[10px] font-bold uppercase tracking-widest text-[#E21B24]">
           {it ? "Prossimo da vedere" : "Up next"}
         </p>
-        <p className="truncate text-sm font-extrabold text-white">
+        <p className="mt-1 truncate text-base font-extrabold text-white">
           {entry.title[locale]}
         </p>
-        <p className="text-[11px] font-medium text-neutral-400">
+        <p className="text-xs font-medium text-neutral-400">
           {formatPhase(entry.phase, locale)} · {entry.releaseYear}
         </p>
+        <button
+          type="button"
+          onClick={() => onToggleWatch(entry.id)}
+          className="mt-3 flex items-center gap-1.5 rounded-lg bg-[#E21B24] px-3 py-2 text-xs font-bold text-white shadow-[0_0_14px_rgba(226,27,36,0.55)] transition-all hover:brightness-110"
+        >
+          <Check size={14} aria-hidden="true" />
+          <span>{it ? "Visto" : "Watched"}</span>
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={() => onToggleWatch(entry.id)}
-        className="flex shrink-0 items-center gap-1.5 rounded-lg bg-[#E21B24] px-3 py-2 text-xs font-bold text-white shadow-[0_0_14px_rgba(226,27,36,0.55)] transition-all hover:brightness-110"
-      >
-        <Check size={14} aria-hidden="true" />
-        <span>{it ? "Visto" : "Watched"}</span>
-      </button>
     </div>
   );
 };
@@ -151,6 +150,28 @@ export const RankBadge: React.FC<{
   );
 };
 
+/** Percentuale grande: numero sfumato bianco→rosso con bagliore, "%" in alto. */
+export const BigPercent: React.FC<{ pct: number; large?: boolean }> = ({
+  pct,
+  large,
+}) => (
+  <div className="flex items-start leading-[0.9]">
+    <span
+      className={`bg-linear-to-b from-white from-30% to-[#FF4D4D] bg-clip-text font-black tracking-tighter text-transparent drop-shadow-[0_0_18px_rgba(226,27,36,0.4)] ${
+        large ? "text-8xl" : "text-7xl sm:text-8xl"
+      }`}
+      style={{ fontFamily: 'Impact, "Arial Black", sans-serif' }}
+    >
+      {pct}
+    </span>
+    <span
+      className={`mt-1 font-black text-[#E21B24] ${large ? "text-4xl" : "text-3xl"}`}
+    >
+      %
+    </span>
+  </div>
+);
+
 /** Barra della saga con le tappe colorate dentro e le percentuali sotto. */
 export const SagaBar: React.FC<{
   pct: number;
@@ -185,33 +206,26 @@ export const SagaBar: React.FC<{
             className="absolute inset-y-0.5 w-0.5 -translate-x-1/2 rounded-full"
             style={{
               left: `${m}%`,
+              // Colori tenui: il grado al 60%, le tappe future quasi invisibili
               backgroundColor:
-                pct >= m ? rankAt(m).color : "rgba(255,255,255,0.2)",
-              // Bordo scuro: la tacca rossa resta visibile sulla barra rossa.
-              boxShadow: pct >= m ? "0 0 0 1px rgba(0,0,0,0.55)" : undefined,
+                pct >= m ? `${rankAt(m).color}99` : "rgba(255,255,255,0.15)",
             }}
           />
         ))}
       </div>
       <div className="relative mt-1.5 h-4 text-[10px] font-bold">
-        {[...MILESTONES, 100].map((m) => {
-          const reached = pct >= m;
-          const color = m === 100 ? RANKS[RANKS.length - 1].color : rankAt(m).color;
-          return (
-            <span
-              key={m}
-              className={`absolute ${
-                m === 100 ? "right-0" : "-translate-x-1/2"
-              } ${reached ? "" : "text-neutral-500"}`}
-              style={{
-                ...(m === 100 ? {} : { left: `${m}%` }),
-                ...(reached ? { color } : {}),
-              }}
-            >
-              {m}%
-            </span>
-          );
-        })}
+        {MILESTONES.map((m) => (
+          <span
+            key={m}
+            className="absolute -translate-x-1/2"
+            style={{
+              left: `${m}%`,
+              color: pct >= m ? `${rankAt(m).color}99` : "rgba(255,255,255,0.25)",
+            }}
+          >
+            {m}%
+          </span>
+        ))}
       </div>
     </div>
   );
@@ -227,7 +241,7 @@ export const SagaProgress: React.FC<SagaProgressProps> = ({
   const it = locale === "it";
 
   // Festa al cambio di grado: solo quando un singolo "Visto" fa salire di grado
-  // (il caricamento dei salvataggi o un import Excel non la fanno partire).
+  // (il caricamento dei salvataggi o la sincronizzazione non la fanno partire).
   const [prev, setPrev] = useState({ watched: s.watched, rank: s.rankIndex });
   const [celebrating, setCelebrating] = useState(false);
   if (prev.watched !== s.watched) {
@@ -266,18 +280,10 @@ export const SagaProgress: React.FC<SagaProgressProps> = ({
           </span>
         </div>
       )}
-      <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center">
-        <div>
+      <div className="relative flex flex-col gap-6 lg:flex-row lg:items-stretch">
+        <div className="flex flex-col justify-center">
           <div className="flex items-end gap-5">
-            <div className="leading-none">
-              <span
-                className="text-7xl font-black tracking-tighter text-white sm:text-8xl"
-                style={{ fontFamily: 'Impact, "Arial Black", sans-serif' }}
-              >
-                {s.pct}
-              </span>
-              <span className="text-3xl font-black text-[#E21B24]">%</span>
-            </div>
+            <BigPercent pct={s.pct} />
             <div className="pb-2">
               <div className="flex items-center gap-2.5">
                 <RankBadge rank={s.rank} celebrate={celebrating} />
@@ -297,14 +303,14 @@ export const SagaProgress: React.FC<SagaProgressProps> = ({
           <ShareRankButton entries={entries} locale={locale} />
         </div>
 
-        <div className="flex-1 space-y-2.5">
-          <p className="text-sm font-semibold text-neutral-200">
+        <div className="flex flex-1 flex-col justify-center space-y-2.5">
+          <p className="text-center text-sm font-semibold text-neutral-200">
             {motivation(s, locale)}
           </p>
           <SagaBar pct={s.pct} locale={locale} />
         </div>
 
-        <div className="lg:w-80">
+        <div className="flex lg:w-[340px]">
           <NextUp
             entry={s.next}
             locale={locale}

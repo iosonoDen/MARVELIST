@@ -1,6 +1,6 @@
 /**
  * Mappa fissa dei vecchi ID posizionali (`mcu-01`…`mcu-57`, fino alla v1.6.1) verso gli slug.
- * Serve solo a migrare progressi salvati e file Excel vecchi. NON modificare:
+ * Serve solo a migrare i progressi salvati nel browser con la versione vecchia. NON modificare:
  * rispecchia l'ordine del database com'era quando gli ID dipendevano dalla posizione.
  */
 export const LEGACY_ID_TO_SLUG: Readonly<Record<string, string>> = {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Globe, Upload } from "lucide-react";
+import { Globe } from "lucide-react";
 import Image from "next/image";
 import type React from "react";
 import type { SupportedLocale } from "@/types/mcu";
@@ -8,8 +8,6 @@ import type { SupportedLocale } from "@/types/mcu";
 interface GlobalProgressHeaderProps {
   locale: SupportedLocale;
   onToggleLocale: () => void;
-  onExportXLSX: () => void;
-  onTriggerImport: () => void;
   /** Pulsante utente (login), mostrato dopo la lingua. */
   userSlot?: React.ReactNode;
 }
@@ -17,8 +15,6 @@ interface GlobalProgressHeaderProps {
 export const GlobalProgressHeader: React.FC<GlobalProgressHeaderProps> = ({
   locale,
   onToggleLocale,
-  onExportXLSX,
-  onTriggerImport,
   userSlot,
 }) => {
   return (
@@ -54,40 +50,6 @@ export const GlobalProgressHeader: React.FC<GlobalProgressHeaderProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onExportXLSX}
-            className="p-2 sm:px-3 sm:py-2 rounded-lg bg-neutral-900/90 border border-white/10 hover:border-red-600/40 text-neutral-300 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5"
-            title={
-              locale === "it" ? "Esporta come file .xlsx" : "Export as .xlsx"
-            }
-            aria-label={
-              locale === "it"
-                ? "Esporta come file Excel"
-                : "Export as Excel file"
-            }
-          >
-            <Download
-              size={14}
-              className="text-neutral-400"
-              aria-hidden="true"
-            />
-            <span className="hidden sm:inline">Export .xlsx</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={onTriggerImport}
-            className="p-2 sm:px-3 sm:py-2 rounded-lg bg-neutral-900/90 border border-white/10 hover:border-red-600/40 text-neutral-300 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5"
-            title={locale === "it" ? "Importa file .xlsx" : "Import .xlsx"}
-            aria-label={
-              locale === "it" ? "Importa file Excel" : "Import Excel file"
-            }
-          >
-            <Upload size={14} className="text-neutral-400" aria-hidden="true" />
-            <span className="hidden sm:inline">Import .xlsx</span>
-          </button>
-
           <button
             type="button"
             onClick={onToggleLocale}

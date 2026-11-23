@@ -3,7 +3,7 @@
 import { Loader2, Share2 } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import { motivation, RankBadge, SagaBar } from "@/components/SagaProgress";
+import { BigPercent, motivation, RankBadge, SagaBar } from "@/components/SagaProgress";
 import { byTimeline, encodeChallenge, sagaProgress } from "@/lib/saga";
 import type { MCUEntry, SupportedLocale } from "@/types/mcu";
 
@@ -82,14 +82,8 @@ const ShareCard: React.FC<{
           aria-hidden="true"
           className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#E21B24]/20 blur-3xl"
         />
-        <div className="relative leading-none">
-          <span
-            className="text-8xl font-black tracking-tighter text-white"
-            style={{ fontFamily: 'Impact, "Arial Black", sans-serif' }}
-          >
-            {s.pct}
-          </span>
-          <span className="text-4xl font-black text-[#E21B24]">%</span>
+        <div className="relative">
+          <BigPercent pct={s.pct} large />
         </div>
         <div className="relative mt-4 flex items-center gap-2.5">
           <RankBadge rank={s.rank} celebrate={false} size={56} />

@@ -1,4 +1,15 @@
 export type MediaType = 'movie' | 'series';
+/** Universo narrativo: MCU o gruppi fuori dall'MCU (filtro "Universo"). */
+export type Universe =
+  | 'mcu'
+  | 'netflix'
+  | 'x-men'
+  | 'spider-man-sony'
+  | 'sony'
+  | 'fantastic-four'
+  | 'marvel-tv'
+  | 'other';
+
 export type MCUPhase = 'Phase 1' | 'Phase 2' | 'Phase 3' | 'Phase 4' | 'Phase 5' | 'Phase 6';
 
 export interface CastMember {
@@ -17,6 +28,7 @@ export interface MCUEntry {
   releaseDate: string;
   timelineYear: string;
   timelineOrder: number;
+  universe: Universe;
   synopsis: { it: string; en: string; };
   posterUrl: string;
   topCast: CastMember[];

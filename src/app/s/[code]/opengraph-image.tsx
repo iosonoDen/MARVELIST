@@ -219,7 +219,7 @@ export default async function Image({
                   bottom: 4,
                   width: 3,
                   borderRadius: 3,
-                  background: s.pct >= m ? rankAt(m).color : "rgba(255,255,255,0.2)",
+                  background: s.pct >= m ? `${rankAt(m).color}99` : "rgba(255,255,255,0.15)",
                 }}
               />
             ))}
