@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { resolveLegacyId } from '@/data/legacy-ids';
 import { MCUEntry, SupportedLocale } from '@/types/mcu';
 
@@ -35,7 +35,8 @@ const mergeProgress = (base: MCUEntry[], saved: StoredProgress['entries']): MCUE
 export function useWatchlistStorage(base: MCUEntry[]) {
   const [entries, setEntries] = useState<MCUEntry[]>(base);
   const [locale, setLocale] = useState<SupportedLocale>('it');
-  const hydrated = useRef(false);
+  // Stato (non ref): il salvataggio parte solo dopo il render con i dati letti.
+  const [hydrated, setHydrated] = useState(false);
 
   // Idratazione da localStorage dopo il mount: evita mismatch tra HTML pre-renderizzato e client.
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -50,12 +51,12 @@ export function useWatchlistStorage(base: MCUEntry[]) {
     } catch (err) {
       console.warn('Impossibile leggere i progressi salvati:', err);
     }
-    hydrated.current = true;
+    setHydrated(true);
   }, [base]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
-    if (!hydrated.current) return;
+    if (!hydrated) return;
     const payload: StoredProgress = {
       version: 2,
       locale,
@@ -66,7 +67,7 @@ export function useWatchlistStorage(base: MCUEntry[]) {
     } catch (err) {
       console.warn('Impossibile salvare i progressi:', err);
     }
-  }, [entries, locale]);
+  }, [entries, locale, hydrated]);
 
   return { entries, setEntries, locale, setLocale };
 }
