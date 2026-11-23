@@ -8,6 +8,7 @@ import { DetailModal } from "@/components/DetailModal";
 import { GlobalProgressHeader } from "@/components/GlobalProgressHeader";
 import { MCUCard } from "@/components/MCUCard";
 import { MCUListItem } from "@/components/MCUListItem";
+import { SagaProgress } from "@/components/SagaProgress";
 import { INITIAL_MCU_DATABASE, MCU_PHASES } from "@/data/mcu-canon";
 import { useViewMode, type ViewMode } from "@/hooks/useViewMode";
 import { useWatchlistStorage } from "@/hooks/useWatchlistStorage";
@@ -29,11 +30,6 @@ export default function MCUWatchlistApp() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const watchedCount = useMemo(
-    () => entries.filter((e) => e.watched).length,
-    [entries],
-  );
-  const totalCount = entries.length;
 
   const filteredEntries = useMemo(() => {
     return entries
@@ -125,8 +121,6 @@ export default function MCUWatchlistApp() {
       />
 
       <GlobalProgressHeader
-        totalCount={totalCount}
-        watchedCount={watchedCount}
         locale={locale}
         onToggleLocale={() =>
           setLocale((prev) => (prev === "it" ? "en" : "it"))
@@ -136,6 +130,13 @@ export default function MCUWatchlistApp() {
       />
 
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <SagaProgress
+          entries={entries}
+          locale={locale}
+          onToggleWatch={handleToggleWatch}
+          onOpenDetail={setActiveEntry}
+        />
+
         <section className="p-4 sm:p-6 rounded-2xl bg-neutral-950/70 border border-white/10 cinematic-blur space-y-4 shadow-xl">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative w-full md:w-96">
