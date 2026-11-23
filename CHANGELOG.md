@@ -1,12 +1,20 @@
 # Changelog
 
 ## Non rilasciato
+### Added
+- Blocco "Progresso saga" tra header e filtri: percentuale grande, barra con tappe 20/40/60/80% e riquadro "Prossimo da vedere" (primo titolo non visto in ordine di timeline) con pulsante "Visto".
+- 5 gradi con stemmi disegnati a mano: Cadetto (0–20%), Recluta (20–40%), Agente (40–60%), Eroe (60–80%), Vendicatore (80–100%). Animazione quando si sale di grado.
+- Pulsante "Condividi il tuo grado": crea un'immagine 1080×1920 da storia e apre il menu di condivisione del telefono; dal computer la scarica e copia il link.
+- Link sfida `/s/<lingua>-<visti>-<totale>` con anteprima personale per le chat (grado e percentuale) e banner "Il tuo amico è …" per chi lo apre.
 ### Fixed
+- I progressi non vengono più cancellati ricaricando la pagina in sviluppo (React Strict Mode).
 - ID dei titoli ora stabili (slug) invece che posizionali: aggiungere titoli non sposta più i progressi salvati. I vecchi salvataggi e file Excel (`mcu-NN`) vengono migrati in automatico.
 - Route `/api/tmdb/credits`: validazione dell'`id` numerico e cast nella lingua scelta (IT/EN).
 - Foto del cast e poster in inglese: le route TMDB accettano sia la API Key v3 sia il Read Access Token v4.
 - Etichetta della fase tradotta ("Fase 1" / "Phase 1") nel dettaglio e nel filtro delle fasi.
 ### Changed
+- La barra di progresso non è più nell'header.
+- I controlli del video di sfondo sono in basso a destra.
 - Pulsante trailer: link diretto al video ufficiale su YouTube (Marvel Italia in IT, Marvel Entertainment in EN) per 54 titoli su 57, verificati uno per uno. Se manca la versione italiana si usa quella inglese. Per Iron Man, L'incredibile Hulk e Iron Man 2 resta la ricerca su YouTube.
 - README completo in inglese, con le istruzioni per configurare TMDB.
 - Video di sfondo ricompresso a 720p (11,1 MB → 4,7 MB) con `faststart` e immagine di anteprima.
