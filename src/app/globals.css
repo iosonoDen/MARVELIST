@@ -64,3 +64,27 @@
 @media (prefers-reduced-motion: reduce) {
   .rank-pop, .rank-banner { animation: none; }
 }
+
+/* Avviso login: scende dall'alto e la linea del tempo si consuma in 5 secondi. */
+@keyframes nudge-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.nudge-in { animation: nudge-in 0.35s ease-out both; }
+@keyframes nudge-timer {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+.nudge-timer { animation: nudge-timer 5s linear forwards; }
+
+/* Pagine di accesso: file di locandine che scorrono in orizzontale. */
+@keyframes poster-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.poster-row { animation: poster-scroll 60s linear infinite; }
+.poster-row.reverse { animation-direction: reverse; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nudge-in, .poster-row { animation: none; }
+}

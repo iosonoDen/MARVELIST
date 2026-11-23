@@ -2,6 +2,10 @@
 
 ## Non rilasciato
 ### Added
+- Login facoltativo con Google (Clerk): pulsante utente nell'header con menu Accedi / Registrati, pagine `/login-page` e `/signup-page` con locandine in movimento.
+- Sincronizzazione dei progressi nell'account: al primo accesso unisce browser e account, poi salva ogni modifica.
+- Avviso "Hai segnato 3 titoli!" sotto il pulsante utente (5 secondi, una sola volta, solo senza account).
+- Bozza dell'informativa privacy (`/privacy`).
 - Blocco "Progresso saga" tra header e filtri: percentuale grande, barra con tappe 20/40/60/80% e riquadro "Prossimo da vedere" (primo titolo non visto in ordine di timeline) con pulsante "Visto".
 - 5 gradi con stemmi disegnati a mano: Cadetto (0–20%), Recluta (20–40%), Agente (40–60%), Eroe (60–80%), Vendicatore (80–100%). Animazione quando si sale di grado.
 - Pulsante "Condividi il tuo grado": crea un'immagine 1080×1920 da storia e apre il menu di condivisione del telefono; dal computer la scarica e copia il link.

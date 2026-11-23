@@ -1,3 +1,4 @@
+import { ClerkProvider } from '@clerk/nextjs';
 import type { Metadata } from 'next';
 import './globals.css';
 
@@ -22,7 +23,14 @@ export default function RootLayout({
   return (
     <html lang="it" className="dark">
       <body className="bg-[#060709] text-neutral-100 antialiased min-h-screen">
-        {children}
+        {/* Login facoltativo: il sito resta usabile senza account */}
+        <ClerkProvider
+          signInUrl="/login-page"
+          signUpUrl="/signup-page"
+          afterSignOutUrl="/"
+        >
+          {children}
+        </ClerkProvider>
       </body>
     </html>
   );

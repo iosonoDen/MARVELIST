@@ -2,13 +2,16 @@
 
 import { Calendar, Clock, LayoutGrid, List, Search } from "lucide-react";
 import type React from "react";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { CinematicBackground } from "@/components/CinematicBackground";
 import { DetailModal } from "@/components/DetailModal";
 import { GlobalProgressHeader } from "@/components/GlobalProgressHeader";
 import { MCUCard } from "@/components/MCUCard";
 import { MCUListItem } from "@/components/MCUListItem";
+import { useAuth } from "@clerk/nextjs";
 import { ChallengeBanner } from "@/components/ChallengeBanner";
+import { UserMenu } from "@/components/UserMenu";
+import { useCloudSync } from "@/hooks/useCloudSync";
 import { SagaProgress } from "@/components/SagaProgress";
 import { INITIAL_MCU_DATABASE, MCU_PHASES } from "@/data/mcu-canon";
 import { useViewMode, type ViewMode } from "@/hooks/useViewMode";
@@ -17,14 +20,33 @@ import type { FilterStatus, FilterType, MCUEntry, SortMode } from "@/types/mcu";
 import { exportToMCUExcel, parseMCUExcel } from "@/utils/excel-sync";
 import { formatPhase } from "@/utils/phase";
 
+const NUDGE_AT = 3;
+const NUDGE_FLAG = "marvelist:login-nudge:v1";
+const readFlag = (k: string) => {
+  try {
+    return window.localStorage.getItem(k) === "1";
+  } catch {
+    return false;
+  }
+};
+const writeFlag = (k: string) => {
+  try {
+    window.localStorage.setItem(k, "1");
+  } catch {
+    /* storage non disponibile: l'avviso potrà ricomparire */
+  }
+};
+
 interface WatchlistAppProps {
   /** Progresso dell'amico che ha condiviso il link /s/… (mostra il banner sfida). */
   challenge?: { watched: number; total: number } | null;
 }
 
 export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
-  const { entries, setEntries, locale, setLocale } =
+  const { entries, setEntries, locale, setLocale, hydrated } =
     useWatchlistStorage(INITIAL_MCU_DATABASE);
+  const { isSignedIn } = useAuth();
+  const syncStatus = useCloudSync(entries, setEntries, hydrated);
   const { viewMode, setViewMode } = useViewMode();
   const [importMessage, setImportMessage] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<SortMode>("timeline");
@@ -35,6 +57,26 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
   const [activeEntry, setActiveEntry] = useState<MCUEntry | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Avviso "Hai segnato 3 titoli!": una sola volta, solo senza account,
+  // solo quando un singolo "Visto" porta a 3 (non al caricamento o all'import).
+  const watchedCount = entries.filter((e) => e.watched).length;
+  const [prevWatched, setPrevWatched] = useState(watchedCount);
+  const [nudgeCount, setNudgeCount] = useState<number | null>(null);
+  if (prevWatched !== watchedCount) {
+    if (
+      hydrated &&
+      isSignedIn === false &&
+      prevWatched === NUDGE_AT - 1 &&
+      watchedCount === NUDGE_AT &&
+      !readFlag(NUDGE_FLAG)
+    ) {
+      writeFlag(NUDGE_FLAG);
+      setNudgeCount(watchedCount);
+    }
+    setPrevWatched(watchedCount);
+  }
+  const closeNudge = useCallback(() => setNudgeCount(null), []);
 
 
   const filteredEntries = useMemo(() => {
@@ -133,6 +175,14 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
         }
         onExportXLSX={() => exportToMCUExcel(entries)}
         onTriggerImport={() => fileInputRef.current?.click()}
+        userSlot={
+          <UserMenu
+            locale={locale}
+            syncStatus={syncStatus}
+            nudgeCount={nudgeCount}
+            onNudgeClose={closeNudge}
+          />
+        }
       />
 
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">

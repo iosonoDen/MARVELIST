@@ -69,5 +69,5 @@ export function useWatchlistStorage(base: MCUEntry[]) {
     }
   }, [entries, locale, hydrated]);
 
-  return { entries, setEntries, locale, setLocale };
+  return { entries, setEntries, locale, setLocale, hydrated };
 }
