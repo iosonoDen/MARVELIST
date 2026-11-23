@@ -1,27 +1,29 @@
 # MARVELIST
 
-A watchlist for the **Marvel Cinematic Universe**: 57 titles across movies, series and Disney+ specials. Mark what you have watched and rate each title with half stars.
+A watchlist for the **Marvel Cinematic Universe** and beyond: 120 titles — the MCU (66, including One-Shots and specials) plus 54 Marvel films and series outside the MCU (Sony Spider-Man, Fox X-Men, Netflix and more). Mark what you have watched and rate each title with half stars.
 Available in English and Italian. Posters, cast and metadata come from [TMDB](https://www.themoviedb.org/).
 
 ## Features
 
-- 39 movies and 18 series or specials, sorted by **canonical timeline** or **release date**
+- Sorted by **canonical timeline** (official Marvel/Disney+ order for the MCU, with non-MCU titles placed by their setting year) or **release date**
+- Filters by universe (MCU, Netflix, X-Men Fox, Sony…)
 - Filters by type (movies or series), status (watched or unwatched) and phase, plus search by title or year
 - **Grid** or **list** view
 - Ratings from 0.5 to 5 stars and a saga progress bar
 - A detail view for each title with synopsis, **cast with photos** and a direct link to the **official trailer** (Marvel Italia or Marvel Entertainment)
-- Progress saved in your browser (`localStorage`), with no account
-- **Excel export and import** (`.xlsx`) to back up your progress or move it to another device
+- Progress saved in your browser (`localStorage`), with no account needed
+- **Optional Google login** (Clerk) to sync your progress across devices
 - A background video with volume and visibility controls
 
 ## Tech stack
 
-Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · SheetJS (`xlsx`) · lucide-react
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · Clerk · lucide-react
 
 ## Requirements
 
 - **Node.js 20.9 or later**
 - A free **TMDB** account, for cast photos and English posters
+- A **Clerk** application for the optional Google login (installed from the Vercel Marketplace; `vercel env pull .env.local` downloads its keys)
 
 ## Getting started
 
@@ -62,7 +64,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-**The app works without a credential too.** Posters, lists, ratings and Excel all keep working. Only the cast photos are missing: the cast names show instead.
+**The app works without a credential too.** Posters, lists and ratings all keep working. Only the cast photos are missing: the cast names show instead.
 
 ## Scripts
 
@@ -89,18 +91,20 @@ src/
 │  └─ api/tmdb/             # server routes: cast (credits) and posters
 ├─ components/              # cards, list rows, detail modal, header, video background…
 ├─ data/
-│  ├─ mcu-canon.ts          # database of the 57 titles
+│  ├─ mcu-canon.ts          # MCU titles (and builds the full database)
+│  ├─ beyond-mcu.ts         # Marvel titles outside the MCU
+│  ├─ timeline-order.ts     # canonical timeline order
 │  ├─ tmdb.ts               # TMDB IDs and posters
 │  ├─ trailers.ts           # official YouTube trailers (IT / EN)
 │  └─ legacy-ids.ts         # migration of old IDs (do not edit)
 ├─ hooks/                   # saved progress and view mode
 ├─ lib/tmdb-server.ts       # TMDB requests (server only)
-└─ utils/                   # Excel export/import, phase labels
+└─ utils/                   # phase labels
 ```
 
 ### Adding a title
 
-Add a row to `src/data/mcu-canon.ts`, its TMDB data to `src/data/tmdb.ts` and, if available, its YouTube trailer IDs to `src/data/trailers.ts`, all with the same slug.
+Add a row to `src/data/mcu-canon.ts` (or `beyond-mcu.ts`), its slug to `src/data/timeline-order.ts`, its TMDB data to `src/data/tmdb.ts` and, if available, its YouTube trailer IDs to `src/data/trailers.ts`, all with the same slug.
 Each title's ID is its **slug**, so adding or moving rows never affects saved progress.
 
 ## Credits and disclaimer

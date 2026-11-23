@@ -1,8 +1,7 @@
 "use client";
 
 import { Calendar, Clock, LayoutGrid, List, Search } from "lucide-react";
-import type React from "react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { CinematicBackground } from "@/components/CinematicBackground";
 import { DetailModal } from "@/components/DetailModal";
 import { GlobalProgressHeader } from "@/components/GlobalProgressHeader";
@@ -17,8 +16,8 @@ import { INITIAL_MCU_DATABASE, MCU_PHASES } from "@/data/mcu-canon";
 import { useViewMode, type ViewMode } from "@/hooks/useViewMode";
 import { useWatchlistStorage } from "@/hooks/useWatchlistStorage";
 import type { FilterStatus, FilterType, MCUEntry, SortMode } from "@/types/mcu";
-import { exportToMCUExcel, parseMCUExcel } from "@/utils/excel-sync";
 import { formatPhase } from "@/utils/phase";
+import { matchesUniverse, UNIVERSE_OPTIONS, type UniverseFilter } from "@/utils/universe";
 
 const NUDGE_AT = 3;
 const NUDGE_FLAG = "marvelist:login-nudge:v1";
@@ -48,15 +47,13 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
   const { isSignedIn } = useAuth();
   const syncStatus = useCloudSync(entries, setEntries, hydrated);
   const { viewMode, setViewMode } = useViewMode();
-  const [importMessage, setImportMessage] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<SortMode>("timeline");
   const [filterType, setFilterType] = useState<FilterType>("all");
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
   const [selectedPhase, setSelectedPhase] = useState<string>("all");
+  const [selectedUniverse, setSelectedUniverse] = useState<UniverseFilter>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [activeEntry, setActiveEntry] = useState<MCUEntry | null>(null);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Avviso "Hai segnato 3 titoli!": una sola volta, solo senza account,
   // solo quando un singolo "Visto" porta a 3 (non al caricamento o all'import).
@@ -87,6 +84,7 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
         if (filterStatus === "unwatched" && entry.watched) return false;
         if (selectedPhase !== "all" && entry.phase !== selectedPhase)
           return false;
+        if (!matchesUniverse(entry.universe, selectedUniverse)) return false;
         if (searchQuery.trim() !== "") {
           const q = searchQuery.toLowerCase();
           const matchTitle = entry.title[locale].toLowerCase().includes(q);
@@ -110,6 +108,7 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
     filterType,
     filterStatus,
     selectedPhase,
+    selectedUniverse,
     searchQuery,
     sortMode,
     locale,
@@ -133,48 +132,15 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      const { entries: merged, matched } = await parseMCUExcel(file, entries);
-      setEntries(merged);
-      setImportMessage(
-        locale === "it"
-          ? `Import completato: ${matched} titoli aggiornati.`
-          : `Import complete: ${matched} titles updated.`,
-      );
-    } catch (err) {
-      console.error("Errore import Excel:", err);
-      setImportMessage(
-        locale === "it"
-          ? "Errore: file Excel non valido."
-          : "Error: invalid Excel file.",
-      );
-    } finally {
-      e.target.value = "";
-    }
-  };
-
   return (
     <div className="relative min-h-screen text-neutral-100 selection:bg-[#E21B24] selection:text-white font-sans">
       <CinematicBackground videoSrc="/Marvel-Opening-Theme.mp4" />
-
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileUpload}
-        accept=".xlsx, .xls"
-        className="hidden"
-      />
 
       <GlobalProgressHeader
         locale={locale}
         onToggleLocale={() =>
           setLocale((prev) => (prev === "it" ? "en" : "it"))
         }
-        onExportXLSX={() => exportToMCUExcel(entries)}
-        onTriggerImport={() => fileInputRef.current?.click()}
         userSlot={
           <UserMenu
             locale={locale}
@@ -330,6 +296,19 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
               )}
             </div>
 
+            <div className="flex items-center gap-2">
+            <select
+              value={selectedUniverse}
+              onChange={(e) => setSelectedUniverse(e.target.value as UniverseFilter)}
+              aria-label={locale === "it" ? "Universo" : "Universe"}
+              className="px-3 py-1.5 rounded-lg bg-neutral-900 border border-white/10 text-neutral-200 text-xs font-semibold focus:border-[#E21B24] focus:outline-none"
+            >
+              {UNIVERSE_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o[locale]}
+                </option>
+              ))}
+            </select>
             <select
               value={selectedPhase}
               onChange={(e) => setSelectedPhase(e.target.value)}
@@ -344,25 +323,9 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
                 </option>
               ))}
             </select>
+            </div>
           </div>
         </section>
-
-        {importMessage && (
-          <div
-            role="status"
-            className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-neutral-950/80 border border-white/10 text-xs font-medium text-neutral-200 shadow-sm"
-          >
-            <span>{importMessage}</span>
-            <button
-              type="button"
-              onClick={() => setImportMessage(null)}
-              className="text-neutral-400 hover:text-white"
-              aria-label="Chiudi"
-            >
-              ✕
-            </button>
-          </div>
-        )}
 
         <section>
           {filteredEntries.length === 0 ? (
