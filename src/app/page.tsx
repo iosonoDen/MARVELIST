@@ -2,12 +2,13 @@
 
 import { Calendar, Clock, LayoutGrid, List, Search } from "lucide-react";
 import type React from "react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CinematicBackground } from "@/components/CinematicBackground";
 import { DetailModal } from "@/components/DetailModal";
 import { GlobalProgressHeader } from "@/components/GlobalProgressHeader";
 import { MCUCard } from "@/components/MCUCard";
 import { MCUListItem } from "@/components/MCUListItem";
+import { SagaProgress, type SagaProgressVariant } from "@/components/SagaProgress";
 import { INITIAL_MCU_DATABASE, MCU_PHASES } from "@/data/mcu-canon";
 import { useViewMode, type ViewMode } from "@/hooks/useViewMode";
 import { useWatchlistStorage } from "@/hooks/useWatchlistStorage";
@@ -29,11 +30,15 @@ export default function MCUWatchlistApp() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const watchedCount = useMemo(
-    () => entries.filter((e) => e.watched).length,
-    [entries],
-  );
-  const totalCount = entries.length;
+  // Anteprima delle 3 versioni: ?progress=a | b | c
+  const [progressVariant, setProgressVariant] =
+    useState<SagaProgressVariant>("a");
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    const v = new URLSearchParams(window.location.search).get("progress");
+    if (v === "a" || v === "b" || v === "c") setProgressVariant(v);
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const filteredEntries = useMemo(() => {
     return entries
@@ -125,8 +130,6 @@ export default function MCUWatchlistApp() {
       />
 
       <GlobalProgressHeader
-        totalCount={totalCount}
-        watchedCount={watchedCount}
         locale={locale}
         onToggleLocale={() =>
           setLocale((prev) => (prev === "it" ? "en" : "it"))
@@ -136,6 +139,15 @@ export default function MCUWatchlistApp() {
       />
 
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <SagaProgress
+          entries={entries}
+          phases={MCU_PHASES}
+          locale={locale}
+          variant={progressVariant}
+          onToggleWatch={handleToggleWatch}
+          onOpenDetail={setActiveEntry}
+        />
+
         <section className="p-4 sm:p-6 rounded-2xl bg-neutral-950/70 border border-white/10 cinematic-blur space-y-4 shadow-xl">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative w-full md:w-96">
