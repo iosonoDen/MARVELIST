@@ -8,21 +8,26 @@ export const alt = "MARVELIST";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const asset = (...p: string[]) => readFile(join(process.cwd(), ...p));
 
 // Font e logo letti una volta sola.
 const fontsP = Promise.all([
-  asset("src/assets/fonts/Anton-Regular.ttf"),
-  asset("src/assets/fonts/Inter-SemiBold.ttf"),
-  asset("src/assets/fonts/Inter-Black.ttf"),
+  readFile(join(process.cwd(), "src/assets/fonts/Anton-Regular.ttf")),
+  readFile(join(process.cwd(), "src/assets/fonts/Inter-SemiBold.ttf")),
+  readFile(join(process.cwd(), "src/assets/fonts/Inter-Black.ttf")),
 ]);
-const logoP = asset("public/marvel-logo.svg").then(
+const logoP = readFile(join(process.cwd(), "public/marvel-logo.svg")).then(
   (b) => `data:image/svg+xml;base64,${b.toString("base64")}`,
 );
 
-/** Stemma del grado (public/ranks/<nome>.png) come data URL. */
-const rankIcon = (path: string) =>
-  asset("public", path).then((b) => `data:image/png;base64,${b.toString("base64")}`);
+/** Stemmi dei gradi come data URL (percorsi fissi: Vercel include solo questi file). */
+const toDataUrl = (b: Buffer) => `data:image/png;base64,${b.toString("base64")}`;
+const RANK_ICONS: Record<string, Promise<string>> = {
+  "/ranks/cadetto.png": readFile(join(process.cwd(), "public/ranks/cadetto.png")).then(toDataUrl),
+  "/ranks/recluta.png": readFile(join(process.cwd(), "public/ranks/recluta.png")).then(toDataUrl),
+  "/ranks/agente.png": readFile(join(process.cwd(), "public/ranks/agente.png")).then(toDataUrl),
+  "/ranks/eroe.png": readFile(join(process.cwd(), "public/ranks/eroe.png")).then(toDataUrl),
+  "/ranks/vendicatore.png": readFile(join(process.cwd(), "public/ranks/vendicatore.png")).then(toDataUrl),
+};
 
 export default async function Image({
   params,
@@ -40,7 +45,7 @@ export default async function Image({
   const [[anton, interSemi, interBlack], logo, icon] = await Promise.all([
     fontsP,
     logoP,
-    rankIcon(s.rank.icon),
+    RANK_ICONS[s.rank.icon],
   ]);
 
   const posters = byTimeline(INITIAL_MCU_DATABASE)

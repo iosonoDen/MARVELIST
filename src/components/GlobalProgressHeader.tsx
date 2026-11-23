@@ -10,6 +10,8 @@ interface GlobalProgressHeaderProps {
   onToggleLocale: () => void;
   onExportXLSX: () => void;
   onTriggerImport: () => void;
+  /** Pulsante utente (login), mostrato dopo la lingua. */
+  userSlot?: React.ReactNode;
 }
 
 export const GlobalProgressHeader: React.FC<GlobalProgressHeaderProps> = ({
@@ -17,6 +19,7 @@ export const GlobalProgressHeader: React.FC<GlobalProgressHeaderProps> = ({
   onToggleLocale,
   onExportXLSX,
   onTriggerImport,
+  userSlot,
 }) => {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-[#060709]/85 cinematic-blur transition-all font-sans">
@@ -97,6 +100,8 @@ export const GlobalProgressHeader: React.FC<GlobalProgressHeaderProps> = ({
             <Globe size={14} className="text-red-500" aria-hidden="true" />
             <span>{locale.toUpperCase()}</span>
           </button>
+
+          {userSlot}
         </div>
       </div>
 
