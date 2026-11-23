@@ -1,9 +1,9 @@
 "use client";
 
-import { Check, Trophy } from "lucide-react";
+import { Check, Crown, Eye, Shield, Zap, type LucideIcon } from "lucide-react";
 import Image from "next/image";
 import type React from "react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { MCUEntry, SupportedLocale } from "@/types/mcu";
 import { formatPhase } from "@/utils/phase";
 
@@ -15,12 +15,23 @@ interface SagaProgressProps {
 }
 
 /** 4 gradi, uno per ogni quarto della saga: 0–25, 25–50, 50–75, 75–100%. */
-const RANKS: { min: number; it: string; en: string }[] = [
-  { min: 0, it: "Recluta", en: "Recruit" },
-  { min: 25, it: "Agente", en: "Agent" },
-  { min: 50, it: "Eroe", en: "Hero" },
-  { min: 75, it: "Vendicatore", en: "Avenger" },
+interface Rank {
+  min: number;
+  it: string;
+  en: string;
+  Icon: LucideIcon;
+  color: string;
+}
+
+const RANKS: Rank[] = [
+  { min: 0, it: "Recluta", en: "Recruit", Icon: Shield, color: "#CD7F32" },
+  { min: 25, it: "Agente", en: "Agent", Icon: Eye, color: "#3B82F6" },
+  { min: 50, it: "Eroe", en: "Hero", Icon: Zap, color: "#E21B24" },
+  { min: 75, it: "Vendicatore", en: "Avenger", Icon: Crown, color: "#F2A900" },
 ];
+
+/** Colore del grado che si sblocca a una certa tappa (25, 50, 75). */
+const rankAt = (m: number) => RANKS.find((r) => r.min === m) ?? RANKS[0];
 
 /** Tappe disegnate dentro la barra (100% è la fine della barra stessa). */
 const MILESTONES = [25, 50, 75];
@@ -48,14 +59,14 @@ function useSagaStats(entries: MCUEntry[]) {
       ? Math.ceil((nextRank.min / 100) * total) - watched
       : 0;
 
-    return { total, watched, pct, next, rank, nextRank, toNextRank };
+    return { total, watched, pct, next, rank, rankIndex, nextRank, toNextRank };
   }, [entries]);
 }
 
 type Stats = ReturnType<typeof useSagaStats>;
 
 /** Frase che cambia col progresso: spinge a guardare il prossimo titolo. */
-function motivation(s: Stats, locale: SupportedLocale): string {
+function motivation(s: Stats, locale: SupportedLocale): React.ReactNode {
   const it = locale === "it";
   if (s.watched === 0)
     return it
@@ -67,9 +78,20 @@ function motivation(s: Stats, locale: SupportedLocale): string {
       : "Saga complete. You are a true Avenger.";
   if (s.nextRank) {
     const n = s.toNextRank;
-    return it
-      ? `Ancora ${n} ${n === 1 ? "titolo" : "titoli"} per diventare ${s.nextRank.it}.`
-      : `${n} more ${n === 1 ? "title" : "titles"} to become ${s.nextRank.en}.`;
+    const name = (
+      <span className="font-extrabold" style={{ color: s.nextRank.color }}>
+        {s.nextRank[locale]}
+      </span>
+    );
+    return it ? (
+      <>
+        Ancora {n} {n === 1 ? "titolo" : "titoli"} per diventare {name}.
+      </>
+    ) : (
+      <>
+        {n} more {n === 1 ? "title" : "titles"} to become {name}.
+      </>
+    );
   }
   const left = s.total - s.watched;
   return it
@@ -124,6 +146,37 @@ const NextUp: React.FC<{
   );
 };
 
+/** Badge tondo del grado: icona e colore propri. */
+const RankBadge: React.FC<{ rank: Rank; celebrate: boolean }> = ({
+  rank,
+  celebrate,
+}) => {
+  const { Icon, color } = rank;
+  return (
+    <span className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center">
+      {celebrate && (
+        <span
+          aria-hidden="true"
+          className="absolute inset-0 animate-ping rounded-full"
+          style={{ backgroundColor: `${color}66` }}
+        />
+      )}
+      <span
+        className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border-2 ${
+          celebrate ? "rank-pop" : ""
+        }`}
+        style={{
+          borderColor: color,
+          backgroundColor: `${color}26`,
+          boxShadow: `0 0 16px ${color}80`,
+        }}
+      >
+        <Icon size={17} color={color} strokeWidth={2.5} aria-hidden="true" />
+      </span>
+    </span>
+  );
+};
+
 export const SagaProgress: React.FC<SagaProgressProps> = ({
   entries,
   locale,
@@ -133,12 +186,46 @@ export const SagaProgress: React.FC<SagaProgressProps> = ({
   const s = useSagaStats(entries);
   const it = locale === "it";
 
+  // Festa al cambio di grado: solo quando un singolo "Visto" fa salire di grado
+  // (il caricamento dei salvataggi o un import Excel non la fanno partire).
+  const [prev, setPrev] = useState({ watched: s.watched, rank: s.rankIndex });
+  const [celebrating, setCelebrating] = useState(false);
+  if (prev.watched !== s.watched) {
+    if (s.watched === prev.watched + 1 && s.rankIndex > prev.rank) {
+      setCelebrating(true);
+    }
+    setPrev({ watched: s.watched, rank: s.rankIndex });
+  }
+  useEffect(() => {
+    if (!celebrating) return;
+    const t = window.setTimeout(() => setCelebrating(false), 2600);
+    return () => window.clearTimeout(t);
+  }, [celebrating]);
+
   return (
     <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/75 p-5 shadow-xl cinematic-blur sm:p-7">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#E21B24]/20 blur-3xl"
       />
+      {celebrating && (
+        <div
+          role="status"
+          className="rank-banner pointer-events-none absolute inset-x-0 top-0 z-10 flex justify-center"
+        >
+          <span
+            className="mt-2 flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-black uppercase tracking-widest text-white"
+            style={{
+              borderColor: s.rank.color,
+              backgroundColor: `${s.rank.color}33`,
+              boxShadow: `0 0 24px ${s.rank.color}99`,
+            }}
+          >
+            <s.rank.Icon size={14} color={s.rank.color} aria-hidden="true" />
+            {it ? "Nuovo grado" : "New rank"}: {s.rank[locale]}
+          </span>
+        </div>
+      )}
       <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center">
         <div className="flex items-end gap-5">
           <div className="leading-none">
@@ -151,10 +238,15 @@ export const SagaProgress: React.FC<SagaProgressProps> = ({
             <span className="text-3xl font-black text-[#E21B24]">%</span>
           </div>
           <div className="pb-2">
-            <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-[#F2A900]">
-              <Trophy size={13} aria-hidden="true" />
-              {it ? "Grado" : "Rank"}: {s.rank[locale]}
-            </p>
+            <div className="flex items-center gap-2.5">
+              <RankBadge rank={s.rank} celebrate={celebrating} />
+              <p
+                className="text-[11px] font-bold uppercase tracking-widest"
+                style={{ color: s.rank.color }}
+              >
+                {it ? "Grado" : "Rank"}: {s.rank[locale]}
+              </p>
+            </div>
             <p className="mt-1 text-sm font-semibold text-neutral-300">
               <span className="font-extrabold text-white">{s.watched}</span> /{" "}
               {s.total} {it ? "titoli visti" : "titles watched"}
@@ -186,25 +278,36 @@ export const SagaProgress: React.FC<SagaProgressProps> = ({
                 <span
                   key={m}
                   aria-hidden="true"
-                  className={`absolute inset-y-0.5 w-px -translate-x-1/2 ${
-                    s.pct >= m ? "bg-[#F2A900]" : "bg-white/20"
-                  }`}
-                  style={{ left: `${m}%` }}
+                  className="absolute inset-y-0.5 w-0.5 -translate-x-1/2 rounded-full"
+                  style={{
+                    left: `${m}%`,
+                    backgroundColor:
+                      s.pct >= m ? rankAt(m).color : "rgba(255,255,255,0.2)",
+                    // Bordo scuro: la tacca rossa resta visibile sulla barra rossa.
+                    boxShadow: s.pct >= m ? "0 0 0 1px rgba(0,0,0,0.55)" : undefined,
+                  }}
                 />
               ))}
             </div>
             <div className="relative mt-1.5 h-4 text-[10px] font-bold">
-              {[...MILESTONES, 100].map((m) => (
-                <span
-                  key={m}
-                  className={`absolute ${
-                    m === 100 ? "right-0" : "-translate-x-1/2"
-                  } ${s.pct >= m ? "text-[#F2A900]" : "text-neutral-500"}`}
-                  style={m === 100 ? undefined : { left: `${m}%` }}
-                >
-                  {m}%
-                </span>
-              ))}
+              {[...MILESTONES, 100].map((m) => {
+                const reached = s.pct >= m;
+                const color = m === 100 ? RANKS[3].color : rankAt(m).color;
+                return (
+                  <span
+                    key={m}
+                    className={`absolute ${
+                      m === 100 ? "right-0" : "-translate-x-1/2"
+                    } ${reached ? "" : "text-neutral-500"}`}
+                    style={{
+                      ...(m === 100 ? {} : { left: `${m}%` }),
+                      ...(reached ? { color } : {}),
+                    }}
+                  >
+                    {m}%
+                  </span>
+                );
+              })}
             </div>
           </div>
         </div>
