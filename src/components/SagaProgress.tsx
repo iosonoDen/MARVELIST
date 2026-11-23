@@ -1,11 +1,21 @@
 "use client";
 
-import { Check, Crown, Eye, Shield, Zap, type LucideIcon } from "lucide-react";
+import { Check } from "lucide-react";
 import Image from "next/image";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
+import {
+  byTimeline,
+  MILESTONES,
+  RANKS,
+  type Rank,
+  rankAt,
+  type SagaProgressStats,
+  sagaProgress,
+} from "@/lib/saga";
 import type { MCUEntry, SupportedLocale } from "@/types/mcu";
 import { formatPhase } from "@/utils/phase";
+import { ShareRankButton } from "@/components/ShareRankButton";
 
 interface SagaProgressProps {
   entries: MCUEntry[];
@@ -14,59 +24,19 @@ interface SagaProgressProps {
   onOpenDetail: (entry: MCUEntry) => void;
 }
 
-/** 4 gradi, uno per ogni quarto della saga: 0–25, 25–50, 50–75, 75–100%. */
-interface Rank {
-  min: number;
-  it: string;
-  en: string;
-  Icon: LucideIcon;
-  color: string;
-}
-
-const RANKS: Rank[] = [
-  { min: 0, it: "Recluta", en: "Recruit", Icon: Shield, color: "#CD7F32" },
-  { min: 25, it: "Agente", en: "Agent", Icon: Eye, color: "#3B82F6" },
-  { min: 50, it: "Eroe", en: "Hero", Icon: Zap, color: "#E21B24" },
-  { min: 75, it: "Vendicatore", en: "Avenger", Icon: Crown, color: "#F2A900" },
-];
-
-/** Colore del grado che si sblocca a una certa tappa (25, 50, 75). */
-const rankAt = (m: number) => RANKS.find((r) => r.min === m) ?? RANKS[0];
-
-/** Tappe disegnate dentro la barra (100% è la fine della barra stessa). */
-const MILESTONES = [25, 50, 75];
-
 function useSagaStats(entries: MCUEntry[]) {
   return useMemo(() => {
-    const total = entries.length;
     const watched = entries.filter((e) => e.watched).length;
-    // Percentuale esatta per il grado; arrotondata per difetto per il numero
-    // a schermo, così "25%" compare solo quando il grado Agente è davvero raggiunto.
-    const exact = total > 0 ? (watched / total) * 100 : 0;
-    const pct = Math.floor(exact);
-
     // Prossimo da vedere: il primo titolo non visto in ordine di timeline.
-    const next =
-      [...entries]
-        .sort((a, b) => a.timelineOrder - b.timelineOrder)
-        .find((e) => !e.watched) ?? null;
-
-    const rankIndex = RANKS.findLastIndex((r) => exact >= r.min);
-    const rank = RANKS[rankIndex];
-    const nextRank = RANKS[rankIndex + 1] ?? null;
-    // Titoli che mancano al grado successivo.
-    const toNextRank = nextRank
-      ? Math.ceil((nextRank.min / 100) * total) - watched
-      : 0;
-
-    return { total, watched, pct, next, rank, rankIndex, nextRank, toNextRank };
+    const next = byTimeline(entries).find((e) => !e.watched) ?? null;
+    return { ...sagaProgress(watched, entries.length), next };
   }, [entries]);
 }
 
-type Stats = ReturnType<typeof useSagaStats>;
+type Stats = SagaProgressStats;
 
 /** Frase che cambia col progresso: spinge a guardare il prossimo titolo. */
-function motivation(s: Stats, locale: SupportedLocale): React.ReactNode {
+export function motivation(s: Stats, locale: SupportedLocale): React.ReactNode {
   const it = locale === "it";
   if (s.watched === 0)
     return it
@@ -146,34 +116,104 @@ const NextUp: React.FC<{
   );
 };
 
-/** Badge tondo del grado: icona e colore propri. */
-const RankBadge: React.FC<{ rank: Rank; celebrate: boolean }> = ({
-  rank,
-  celebrate,
-}) => {
-  const { Icon, color } = rank;
+/** Stemma del grado: icona disegnata dall'autore, nel colore del grado, con bagliore. */
+export const RankBadge: React.FC<{
+  rank: Rank;
+  celebrate: boolean;
+  /** Lato in px (default 48). */
+  size?: number;
+}> = ({ rank, celebrate, size = 48 }) => {
+  const { icon, color } = rank;
+  const glow = { filter: `drop-shadow(0 0 6px ${color}b3)` };
   return (
-    <span className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center">
+    <span
+      className="relative inline-flex shrink-0 items-center justify-center"
+      style={{ width: size, height: size }}
+    >
       {celebrate && (
-        <span
+        // eslint-disable-next-line @next/next/no-img-element -- stemma piccolo, serve anche all'export in immagine
+        <img
+          src={icon}
+          alt=""
           aria-hidden="true"
-          className="absolute inset-0 animate-ping rounded-full"
-          style={{ backgroundColor: `${color}66` }}
+          className="absolute inset-0 h-full w-full animate-ping object-contain opacity-60"
         />
       )}
-      <span
-        className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border-2 ${
-          celebrate ? "rank-pop" : ""
-        }`}
-        style={{
-          borderColor: color,
-          backgroundColor: `${color}26`,
-          boxShadow: `0 0 16px ${color}80`,
-        }}
-      >
-        <Icon size={17} color={color} strokeWidth={2.5} aria-hidden="true" />
-      </span>
+      {/* eslint-disable-next-line @next/next/no-img-element -- stemma piccolo, serve anche all'export in immagine */}
+      <img
+        src={icon}
+        alt=""
+        aria-hidden="true"
+        className={`relative h-full w-full object-contain ${celebrate ? "rank-pop" : ""}`}
+        style={glow}
+      />
     </span>
+  );
+};
+
+/** Barra della saga con le tappe colorate dentro e le percentuali sotto. */
+export const SagaBar: React.FC<{
+  pct: number;
+  locale: SupportedLocale;
+  /** Senza animazioni: per l'immagine da condividere. */
+  still?: boolean;
+}> = ({ pct, locale, still }) => {
+  const it = locale === "it";
+  return (
+    <div className="pt-1">
+      <div
+        className="relative h-4 w-full overflow-hidden rounded-full border border-white/10 bg-neutral-900 p-0.5"
+        role="progressbar"
+        aria-valuenow={pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={it ? "Progresso saga" : "Saga progress"}
+      >
+        <div
+          className="relative h-full rounded-full bg-linear-to-r from-[#8B0000] via-[#E21B24] to-[#FF4D4D] shadow-[0_0_18px_rgba(226,27,36,0.9)] transition-all duration-1000 ease-out"
+          style={{ width: `${Math.max(pct, 2)}%` }}
+        >
+          {!still && (
+            <span className="absolute inset-0 animate-pulse rounded-full bg-white/15" />
+          )}
+        </div>
+        {/* Tappe: linee sottili che restano dentro la barra */}
+        {MILESTONES.map((m) => (
+          <span
+            key={m}
+            aria-hidden="true"
+            className="absolute inset-y-0.5 w-0.5 -translate-x-1/2 rounded-full"
+            style={{
+              left: `${m}%`,
+              backgroundColor:
+                pct >= m ? rankAt(m).color : "rgba(255,255,255,0.2)",
+              // Bordo scuro: la tacca rossa resta visibile sulla barra rossa.
+              boxShadow: pct >= m ? "0 0 0 1px rgba(0,0,0,0.55)" : undefined,
+            }}
+          />
+        ))}
+      </div>
+      <div className="relative mt-1.5 h-4 text-[10px] font-bold">
+        {[...MILESTONES, 100].map((m) => {
+          const reached = pct >= m;
+          const color = m === 100 ? RANKS[RANKS.length - 1].color : rankAt(m).color;
+          return (
+            <span
+              key={m}
+              className={`absolute ${
+                m === 100 ? "right-0" : "-translate-x-1/2"
+              } ${reached ? "" : "text-neutral-500"}`}
+              style={{
+                ...(m === 100 ? {} : { left: `${m}%` }),
+                ...(reached ? { color } : {}),
+              }}
+            >
+              {m}%
+            </span>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 
@@ -221,95 +261,47 @@ export const SagaProgress: React.FC<SagaProgressProps> = ({
               boxShadow: `0 0 24px ${s.rank.color}99`,
             }}
           >
-            <s.rank.Icon size={14} color={s.rank.color} aria-hidden="true" />
+            <RankBadge rank={s.rank} celebrate={false} size={22} />
             {it ? "Nuovo grado" : "New rank"}: {s.rank[locale]}
           </span>
         </div>
       )}
       <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center">
-        <div className="flex items-end gap-5">
-          <div className="leading-none">
-            <span
-              className="text-7xl font-black tracking-tighter text-white sm:text-8xl"
-              style={{ fontFamily: 'Impact, "Arial Black", sans-serif' }}
-            >
-              {s.pct}
-            </span>
-            <span className="text-3xl font-black text-[#E21B24]">%</span>
-          </div>
-          <div className="pb-2">
-            <div className="flex items-center gap-2.5">
-              <RankBadge rank={s.rank} celebrate={celebrating} />
-              <p
-                className="text-[11px] font-bold uppercase tracking-widest"
-                style={{ color: s.rank.color }}
+        <div>
+          <div className="flex items-end gap-5">
+            <div className="leading-none">
+              <span
+                className="text-7xl font-black tracking-tighter text-white sm:text-8xl"
+                style={{ fontFamily: 'Impact, "Arial Black", sans-serif' }}
               >
-                {it ? "Grado" : "Rank"}: {s.rank[locale]}
+                {s.pct}
+              </span>
+              <span className="text-3xl font-black text-[#E21B24]">%</span>
+            </div>
+            <div className="pb-2">
+              <div className="flex items-center gap-2.5">
+                <RankBadge rank={s.rank} celebrate={celebrating} />
+                <p
+                  className="text-[11px] font-bold uppercase tracking-widest"
+                  style={{ color: s.rank.color }}
+                >
+                  {it ? "Grado" : "Rank"}: {s.rank[locale]}
+                </p>
+              </div>
+              <p className="mt-1 text-sm font-semibold text-neutral-300">
+                <span className="font-extrabold text-white">{s.watched}</span> /{" "}
+                {s.total} {it ? "titoli visti" : "titles watched"}
               </p>
             </div>
-            <p className="mt-1 text-sm font-semibold text-neutral-300">
-              <span className="font-extrabold text-white">{s.watched}</span> /{" "}
-              {s.total} {it ? "titoli visti" : "titles watched"}
-            </p>
           </div>
+          <ShareRankButton entries={entries} locale={locale} />
         </div>
 
         <div className="flex-1 space-y-2.5">
           <p className="text-sm font-semibold text-neutral-200">
             {motivation(s, locale)}
           </p>
-          <div className="pt-1">
-            <div
-              className="relative h-4 w-full overflow-hidden rounded-full border border-white/10 bg-neutral-900 p-0.5"
-              role="progressbar"
-              aria-valuenow={s.pct}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label={it ? "Progresso saga" : "Saga progress"}
-            >
-              <div
-                className="relative h-full rounded-full bg-linear-to-r from-[#8B0000] via-[#E21B24] to-[#FF4D4D] shadow-[0_0_18px_rgba(226,27,36,0.9)] transition-all duration-1000 ease-out"
-                style={{ width: `${Math.max(s.pct, 2)}%` }}
-              >
-                <span className="absolute inset-0 animate-pulse rounded-full bg-white/15" />
-              </div>
-              {/* Tappe: linee sottili che restano dentro la barra */}
-              {MILESTONES.map((m) => (
-                <span
-                  key={m}
-                  aria-hidden="true"
-                  className="absolute inset-y-0.5 w-0.5 -translate-x-1/2 rounded-full"
-                  style={{
-                    left: `${m}%`,
-                    backgroundColor:
-                      s.pct >= m ? rankAt(m).color : "rgba(255,255,255,0.2)",
-                    // Bordo scuro: la tacca rossa resta visibile sulla barra rossa.
-                    boxShadow: s.pct >= m ? "0 0 0 1px rgba(0,0,0,0.55)" : undefined,
-                  }}
-                />
-              ))}
-            </div>
-            <div className="relative mt-1.5 h-4 text-[10px] font-bold">
-              {[...MILESTONES, 100].map((m) => {
-                const reached = s.pct >= m;
-                const color = m === 100 ? RANKS[3].color : rankAt(m).color;
-                return (
-                  <span
-                    key={m}
-                    className={`absolute ${
-                      m === 100 ? "right-0" : "-translate-x-1/2"
-                    } ${reached ? "" : "text-neutral-500"}`}
-                    style={{
-                      ...(m === 100 ? {} : { left: `${m}%` }),
-                      ...(reached ? { color } : {}),
-                    }}
-                  >
-                    {m}%
-                  </span>
-                );
-              })}
-            </div>
-          </div>
+          <SagaBar pct={s.pct} locale={locale} />
         </div>
 
         <div className="lg:w-80">
