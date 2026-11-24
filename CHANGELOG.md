@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.0
+### Fixed
+- VisionQuest: data di uscita 14 ottobre 2026 (fonte marvel.com).
+- Captain America (1990): data della prima uscita, al cinema nel Regno Unito il 14 dicembre 1990 (prima: uscita in home video negli USA nel 1992).
+
+### Changed
+- Nuovo blocco progresso: percentuale grande a sinistra; al centro grado (stemma + nome), frase, barra a 5 segmenti (uno per grado) con gli stemmi sotto e "Condividi"; a destra "Prossimo da vedere". Il posto del grado attuale sotto la barra resta vuoto: lo stemma sale accanto a "Grado" con un'animazione.
+
 ## 2.0.2
 ### Fixed
 - Pagine di accesso: alcune locandine del muro restavano vuote. Ora sono caricate subito in versione piccola dal CDN di TMDB (senza ottimizzatore Vercel), con una tessera scura e una dissolvenza finché non sono pronte.
