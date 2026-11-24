@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.2
+### Fixed
+- Pagine di accesso: alcune locandine del muro restavano vuote. Ora sono caricate subito in versione piccola dal CDN di TMDB (senza ottimizzatore Vercel), con una tessera scura e una dissolvenza finché non sono pronte.
+
 ## 2.0.1
 ### Changed
 - Pagine di accesso: le locandine scorrono senza mai ripetersi (120 titoli distribuiti su 5 file, ognuno una sola volta); tolto il titolo sulle locandine; modulo e logo centrati, con una linea di divisione tra logo e modulo.

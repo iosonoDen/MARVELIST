@@ -37,8 +37,9 @@ const GoogleIcon = () => (
  */
 const PosterWall: React.FC = () => {
   const rows = useMemo(() => {
+    // Versione piccola (185 px) direttamente dal CDN di TMDB: veloce e senza passare dall'ottimizzatore
     const posters = byTimeline(INITIAL_MCU_DATABASE)
-      .map((e) => e.posterUrl)
+      .map((e) => e.posterUrl.replace("/t/p/w500/", "/t/p/w185/"))
       .filter(Boolean);
     const dealt: string[][] = Array.from({ length: ROWS }, () => []);
     posters.forEach((src, i) => dealt[i % ROWS].push(src));
@@ -63,10 +64,24 @@ const PosterWall: React.FC = () => {
           {row.map((src, i) => (
             <div
               key={i}
-              className="relative aspect-2/3 shrink-0 overflow-hidden rounded-md"
+              className="relative aspect-2/3 shrink-0 overflow-hidden rounded-md bg-neutral-900"
               style={{ width: POSTER_W }}
             >
-              <Image src={src} alt="" fill sizes="150px" className="object-cover" />
+              {/* Caricate subito (priorità bassa): con l'animazione il caricamento "pigro" arriva in ritardo */}
+              {/* eslint-disable-next-line @next/next/no-img-element -- immagine già piccola dal CDN di TMDB */}
+              <img
+                src={src}
+                alt=""
+                loading="eager"
+                fetchPriority="low"
+                decoding="async"
+                className="poster-fade h-full w-full object-cover"
+                onLoad={(e) => e.currentTarget.classList.add("is-loaded")}
+                // Già in cache: caricata prima che React colleghi onLoad
+                ref={(el) => {
+                  if (el?.complete && el.naturalWidth > 0) el.classList.add("is-loaded");
+                }}
+              />
             </div>
           ))}
         </div>
