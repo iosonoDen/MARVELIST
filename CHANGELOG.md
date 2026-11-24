@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1
+### Changed
+- Pagine di accesso: le locandine scorrono senza mai ripetersi (120 titoli distribuiti su 5 file, ognuno una sola volta); tolto il titolo sulle locandine; modulo e logo centrati, con una linea di divisione tra logo e modulo.
+- Node.js fissato a 24.x (`engines` in package.json).
+
 ## 2.0.0
 Login facoltativo con Google, 120 titoli Marvel (MCU e non solo) con timeline ufficiale, gradi, condivisione e nuovo footer. Export/import Excel rimossi.
 

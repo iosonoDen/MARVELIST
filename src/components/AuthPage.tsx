@@ -15,7 +15,10 @@ import { byTimeline } from "@/lib/saga";
 type Mode = "login" | "signup";
 
 const ROWS = 5;
-const PER_ROW = 12;
+/** Velocità di scorrimento (px al secondo), uguale per tutte le file. */
+const SPEED = 38;
+const POSTER_W = 150;
+const GAP = 12;
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
@@ -26,17 +29,21 @@ const GoogleIcon = () => (
   </svg>
 );
 
-/** Muro di locandine: file che scorrono in orizzontale, alternando il verso. */
+/**
+ * Muro di locandine: 5 file che scorrono in orizzontale, alternando il verso.
+ * Pattern: i titoli in ordine di timeline sono distribuiti a rotazione sulle file
+ * (1° → fila 1, 2° → fila 2, …), quindi ogni film compare una sola volta.
+ * Ogni fila è molto più larga dello schermo: il giro ricomincia senza ripetizioni visibili.
+ */
 const PosterWall: React.FC = () => {
   const rows = useMemo(() => {
     const posters = byTimeline(INITIAL_MCU_DATABASE)
       .map((e) => e.posterUrl)
       .filter(Boolean);
-    return Array.from({ length: ROWS }, (_, r) => {
-      const start = (r * PER_ROW) % posters.length;
-      const row = [...posters.slice(start), ...posters.slice(0, start)].slice(0, PER_ROW);
-      return [...row, ...row]; // doppia: lo scorrimento torna all'inizio senza salti
-    });
+    const dealt: string[][] = Array.from({ length: ROWS }, () => []);
+    posters.forEach((src, i) => dealt[i % ROWS].push(src));
+    // Copia doppia solo per chiudere il giro senza salti (translateX -50%)
+    return dealt.map((row) => [...row, ...row]);
   }, []);
 
   return (
@@ -48,12 +55,16 @@ const PosterWall: React.FC = () => {
         <div
           key={r}
           className={`poster-row flex w-max gap-3 ${r % 2 ? "reverse" : ""}`}
-          style={{ animationDuration: `${50 + r * 8}s` }}
+          // Durata = lunghezza di un giro / velocità (ogni fila un po' più lenta: effetto profondità)
+          style={{
+            animationDuration: `${Math.round(((row.length / 2) * (POSTER_W + GAP)) / (SPEED - r * 3))}s`,
+          }}
         >
           {row.map((src, i) => (
             <div
               key={i}
-              className="relative aspect-2/3 w-[150px] shrink-0 overflow-hidden rounded-md"
+              className="relative aspect-2/3 shrink-0 overflow-hidden rounded-md"
+              style={{ width: POSTER_W }}
             >
               <Image src={src} alt="" fill sizes="150px" className="object-cover" />
             </div>
@@ -64,10 +75,7 @@ const PosterWall: React.FC = () => {
   );
 };
 
-export const AuthPage: React.FC<{ mode: Mode; headlineFont: string }> = ({
-  mode,
-  headlineFont,
-}) => {
+export const AuthPage: React.FC<{ mode: Mode }> = ({ mode }) => {
   const locale = useStoredLocale();
   const it = locale === "it";
   const router = useRouter();
@@ -82,7 +90,6 @@ export const AuthPage: React.FC<{ mode: Mode; headlineFont: string }> = ({
     if (authLoaded && isSignedIn) router.replace("/");
   }, [authLoaded, isSignedIn, router]);
 
-  const total = INITIAL_MCU_DATABASE.length;
   const signup = mode === "signup";
   const ready = signup ? signUpLoaded : signInLoaded;
 
@@ -139,25 +146,15 @@ export const AuthPage: React.FC<{ mode: Mode; headlineFont: string }> = ({
         <PosterWall />
         <div className="absolute inset-0 bg-linear-to-r from-[#060709]/30 via-[#060709]/55 to-[#060709]" />
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-[#060709] to-transparent" />
-        <div className="absolute bottom-8 left-6 sm:left-14 lg:bottom-14">
-          <p
-            className={`${headlineFont} text-7xl leading-[0.9] tracking-wide text-white sm:text-8xl lg:text-[128px]`}
-          >
-            {total} {it ? "TITOLI" : "TITLES"}
-          </p>
-          <p className="mt-3 text-base font-semibold text-neutral-200">
-            {it ? "Quanti ne hai visti davvero?" : "How many have you really watched?"}
-          </p>
-        </div>
       </section>
 
       {/* Destra: modulo */}
-      <section className="relative flex flex-1 flex-col bg-[radial-gradient(circle_at_100%_0,#2a070a,#060709_55%)] px-6 py-10 sm:px-14 lg:justify-center lg:px-24">
+      <section className="relative flex flex-1 flex-col items-center justify-center bg-[radial-gradient(circle_at_100%_0,#2a070a,#060709_55%)] px-6 py-10 text-center sm:px-14 lg:px-24">
         {/* Logo: identico all'header, porta alla lista */}
         <Link
           href="/"
           aria-label={it ? "Torna alla lista" : "Back to the list"}
-          className="mb-10 flex items-center gap-1 self-start lg:absolute lg:left-24 lg:top-9 lg:mb-0"
+          className="flex items-center gap-1"
         >
           <div className="relative h-8 w-20.5 flex items-center shadow-[0_0_24px_rgba(226,27,36,0.45)]">
             <Image
@@ -177,7 +174,13 @@ export const AuthPage: React.FC<{ mode: Mode; headlineFont: string }> = ({
           </span>
         </Link>
 
-        <div className="w-full max-w-[420px]">
+        {/* Linea di divisione tra logo e modulo */}
+        <div
+          aria-hidden="true"
+          className="my-8 h-px w-24 bg-linear-to-r from-transparent via-[#E21B24] to-transparent shadow-[0_0_10px_rgba(226,27,36,0.8)]"
+        />
+
+        <div className="w-full max-w-[420px] text-center">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[#E21B24]">
             {T.tag}
           </p>
