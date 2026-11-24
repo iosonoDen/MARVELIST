@@ -88,3 +88,25 @@
 @media (prefers-reduced-motion: reduce) {
   .nudge-in, .poster-row { animation: none; }
 }
+
+/* Biscotto dei cookie: entra dal basso, pulsa da ridotto, esce rotolando via. */
+@keyframes cookie-enter {
+  from { opacity: 0; transform: translateY(16px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.cookie-enter { animation: cookie-enter 0.4s ease-out both; }
+@keyframes cookie-leave {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0) scale(1); }
+  30% { transform: translate(-8px, -6px) rotate(-6deg) scale(1.02); }
+  100% { opacity: 0; transform: translate(140px, 120px) rotate(40deg) scale(0.4); }
+}
+.cookie-leave { animation: cookie-leave 0.65s cubic-bezier(0.55, 0, 0.75, 0.2) forwards; pointer-events: none; }
+@keyframes cookie-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 14px rgba(242, 169, 0, 0.25); }
+  50% { transform: scale(1.06); box-shadow: 0 0 26px rgba(242, 169, 0, 0.5); }
+}
+.cookie-pulse { animation: cookie-enter 0.3s ease-out both, cookie-pulse 2.4s ease-in-out 0.3s infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cookie-enter, .cookie-leave, .cookie-pulse { animation: none; }
+}

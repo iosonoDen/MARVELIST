@@ -1,6 +1,6 @@
 {
   "name": "marvelist",
-  "version": "1.6.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.10.7",
+    "@vercel/analytics": "^2.0.1",
     "html-to-image": "1.11.13",
     "lucide-react": "^0.468.0",
     "next": "^16.4.6",

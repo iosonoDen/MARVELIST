@@ -1,7 +1,13 @@
 # Changelog
 
-## Non rilasciato
+## 2.0.0
+Login facoltativo con Google, 120 titoli Marvel (MCU e non solo) con timeline ufficiale, gradi, condivisione e nuovo footer. Export/import Excel rimossi.
+
 ### Added
+- Statistiche anonime delle visite con Vercel Web Analytics, attive solo con "Accetta tutti".
+- Avviso cookie "biscotto" in basso a destra: si riduce dopo 7 secondi e pulsa; dopo la scelta esce con un'animazione. Le preferenze si cambiano da `/privacy`.
+- Nuovo footer "titoli di coda" con contatti, crediti TMDB e scena post-crediti: da Vendicatore si sblocca la Laurea in Multiversologia da scaricare e condividere.
+- Email di contatto e sezione cookie nell'informativa privacy.
 - 54 titoli Marvel fuori dall'MCU: Spider-Man Sony (Tobey e Andrew), universo Sony, X-Men Fox, Fantastici 4 Fox, serie Netflix, Marvel Television e altri film. Contano nella percentuale e nei gradi.
 - 9 titoli MCU della timeline ufficiale: Eyes of Wakanda, I Am Groot, i 5 One-Shot, The Punisher: One Last Kill, VisionQuest. Totale: 120 titoli.
 - Filtro "Universo" (MCU, fuori MCU, Netflix, X-Men Fox, Spider-Man Sony…).
@@ -26,7 +32,7 @@
 - Timeline canonica: ordine ufficiale Marvel/Disney+ per l'MCU (serie Netflix incluse); i titoli fuori MCU sono inseriti per anno di ambientazione.
 - Barra: niente "100%", tappe 20/40/60/80 più tenui; frase centrata; "Prossimo da vedere" più grande.
 - La barra di progresso non è più nell'header.
-- I controlli del video di sfondo sono in basso a destra.
+- I controlli del video di sfondo sono in basso a sinistra.
 - Pulsante trailer: link diretto al video ufficiale su YouTube (Marvel Italia in IT, Marvel Entertainment in EN) per 54 titoli su 57, verificati uno per uno. Se manca la versione italiana si usa quella inglese. Per Iron Man, L'incredibile Hulk e Iron Man 2 resta la ricerca su YouTube.
 - README completo in inglese, con le istruzioni per configurare TMDB.
 - Video di sfondo ricompresso a 720p (11,1 MB → 4,7 MB) con `faststart` e immagine di anteprima.

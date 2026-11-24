@@ -239,7 +239,7 @@ export const CinematicBackground: FC<CinematicBackgroundProps> = ({
       </div>
 
       {!hasError && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 font-sans">
+        <div className="fixed bottom-6 left-6 z-50 flex items-center gap-2 font-sans">
           <div className={pillClass}>
             <div className={panelClass}>
               <input
