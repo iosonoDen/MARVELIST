@@ -1119,7 +1119,7 @@ const ROWS: Row[] = [
     "VisionQuest",
     "series",
     "Phase 6",
-    "2026-10-13",
+    "2026-10-14",
     "",
     0,
     "Visione, ricostruito e in fuga da chi voleva usarlo come arma, cerca di recuperare la propria identità.",
