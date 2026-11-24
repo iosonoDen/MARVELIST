@@ -9,8 +9,10 @@ import { MCUCard } from "@/components/MCUCard";
 import { MCUListItem } from "@/components/MCUListItem";
 import { useAuth } from "@clerk/nextjs";
 import { ChallengeBanner } from "@/components/ChallengeBanner";
+import { SiteFooter } from "@/components/SiteFooter";
 import { UserMenu } from "@/components/UserMenu";
 import { useCloudSync } from "@/hooks/useCloudSync";
+import { RANKS, sagaProgress } from "@/lib/saga";
 import { SagaProgress } from "@/components/SagaProgress";
 import { INITIAL_MCU_DATABASE, MCU_PHASES } from "@/data/mcu-canon";
 import { useViewMode, type ViewMode } from "@/hooks/useViewMode";
@@ -368,20 +370,12 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
         </section>
       </main>
 
-      <footer className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 text-center text-xs text-neutral-500 font-medium">
-        {locale === "it"
-          ? "I Posters, Cast e Metadati da "
-          : "The Posters, Cast and Metadata from "}
-        <a
-          href="https://www.themoviedb.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[#ff0000] hover:underline font-semibold"
-        >
-          TMDB
-        </a>
-        {locale === "it" ? "." : "."}
-      </footer>
+      <SiteFooter
+        locale={locale}
+        postCreditsUnlocked={sagaProgress(watchedCount, entries.length).rankIndex === RANKS.length - 1}
+        watched={watchedCount}
+        total={entries.length}
+      />
 
       <DetailModal
         entry={activeEntry}

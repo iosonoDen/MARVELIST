@@ -1,4 +1,5 @@
 import { ClerkProvider } from '@clerk/nextjs';
+import { CookieConsent } from '@/components/CookieConsent';
 import type { Metadata } from 'next';
 import './globals.css';
 
@@ -31,6 +32,8 @@ export default function RootLayout({
         >
           {children}
         </ClerkProvider>
+        {/* Avviso cookie; le statistiche anonime partono solo con "Accetta tutti" */}
+        <CookieConsent />
       </body>
     </html>
   );

@@ -9,29 +9,13 @@ import { useRouter } from "next/navigation";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { INITIAL_MCU_DATABASE } from "@/data/mcu-canon";
+import { useStoredLocale } from "@/hooks/useStoredLocale";
 import { byTimeline } from "@/lib/saga";
-import type { SupportedLocale } from "@/types/mcu";
 
 type Mode = "login" | "signup";
 
-const STORAGE_KEY = "marvelist:progress:v1";
 const ROWS = 5;
 const PER_ROW = 12;
-
-/** Lingua scelta dall'utente nella lista (salvata nel browser). */
-function useStoredLocale(): SupportedLocale {
-  const [locale, setLocale] = useState<SupportedLocale>("it");
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "null");
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- lettura una tantum dal browser dopo il mount
-      if (saved?.locale === "en" || saved?.locale === "it") setLocale(saved.locale);
-    } catch {
-      /* lingua predefinita */
-    }
-  }, []);
-  return locale;
-}
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
