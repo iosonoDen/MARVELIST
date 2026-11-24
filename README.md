@@ -21,7 +21,7 @@ Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · Clerk · 
 
 ## Requirements
 
-- **Node.js 20.9 or later**
+- **Node.js 24.x**
 - A free **TMDB** account, for cast photos and English posters
 - A **Clerk** application for the optional Google login (installed from the Vercel Marketplace; `vercel env pull .env.local` downloads its keys)
 
