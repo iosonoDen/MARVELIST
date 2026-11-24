@@ -114,3 +114,14 @@
 /* Locandine del muro: tessera scura finché l'immagine non è pronta, poi dissolvenza. */
 .poster-fade { opacity: 0; transition: opacity 0.5s ease-out; }
 .poster-fade.is-loaded { opacity: 1; }
+
+/* Salita di grado: lo stemma lascia il suo posto sotto la barra e sale accanto a "Grado". */
+@keyframes rank-rise {
+  0% { opacity: 0; transform: translateY(70px) scale(0.5); }
+  60% { opacity: 1; transform: translateY(-6px) scale(1.15); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.rank-rise { display: inline-block; animation: rank-rise 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .rank-rise { animation: none; }
+}

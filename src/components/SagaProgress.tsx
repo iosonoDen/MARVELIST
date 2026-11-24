@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   byTimeline,
   MILESTONES,
+  RANKS,
   type Rank,
   rankAt,
   type SagaProgressStats,
@@ -14,6 +15,7 @@ import {
 } from "@/lib/saga";
 import type { MCUEntry, SupportedLocale } from "@/types/mcu";
 import { formatPhase } from "@/utils/phase";
+import { bebasNeue } from "@/app/fonts";
 import { ShareRankButton } from "@/components/ShareRankButton";
 
 interface SagaProgressProps {
@@ -155,22 +157,77 @@ export const BigPercent: React.FC<{ pct: number; large?: boolean }> = ({
   pct,
   large,
 }) => (
-  <div className="flex items-start leading-[0.9]">
+  <div className="flex items-end leading-[0.85]">
     <span
-      className={`bg-linear-to-b from-white from-30% to-[#FF4D4D] bg-clip-text font-black tracking-tighter text-transparent drop-shadow-[0_0_18px_rgba(226,27,36,0.4)] ${
-        large ? "text-8xl" : "text-7xl sm:text-8xl"
+      className={`font-black tracking-tighter text-white [text-shadow:0_0_40px_rgba(226,27,36,0.35)] ${
+        large ? "text-8xl" : "text-8xl lg:text-[150px]"
       }`}
       style={{ fontFamily: 'Impact, "Arial Black", sans-serif' }}
     >
       {pct}
     </span>
-    <span
-      className={`mt-1 font-black text-[#E21B24] ${large ? "text-4xl" : "text-3xl"}`}
-    >
+    <span className={`font-black text-[#E21B24] ${large ? "text-4xl" : "text-4xl lg:text-5xl"}`}>
       %
     </span>
   </div>
 );
+
+/**
+ * Barra a 5 segmenti, uno per grado, con lo stemma di ogni grado sotto.
+ * Gradi superati: stemma acceso. Grado attuale: posto vuoto (lo stemma è salito accanto a "Grado").
+ * Gradi futuri: stemma spento.
+ */
+export const RankSegmentsBar: React.FC<{
+  pct: number;
+  rankIndex: number;
+  locale: SupportedLocale;
+}> = ({ pct, rankIndex, locale }) => {
+  const it = locale === "it";
+  return (
+    <div
+      className="grid w-full grid-cols-5 gap-1.5"
+      role="progressbar"
+      aria-valuenow={pct}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={it ? "Progresso saga" : "Saga progress"}
+    >
+      {RANKS.map((rank, i) => {
+        const lo = rank.min;
+        const hi = RANKS[i + 1]?.min ?? 100;
+        const fill = Math.max(0, Math.min(1, (pct - lo) / (hi - lo)));
+        const passed = i < rankIndex;
+        const current = i === rankIndex;
+        return (
+          <div key={rank.it}>
+            <div className="h-3 overflow-hidden rounded border border-white/[0.07] bg-neutral-900">
+              <div
+                className="h-full bg-linear-to-r from-[#8B0000] to-[#E21B24] shadow-[0_0_12px_rgba(226,27,36,0.65)] transition-all duration-1000 ease-out"
+                style={{ width: `${fill * 100}%` }}
+              />
+            </div>
+            <div className="mt-1.5 flex h-6 justify-center">
+              {!current && (
+                // eslint-disable-next-line @next/next/no-img-element -- stemma piccolo
+                <img
+                  src={rank.icon}
+                  alt=""
+                  title={rank[locale]}
+                  className="h-6 w-6 object-contain transition-all duration-500"
+                  style={
+                    passed
+                      ? { filter: `drop-shadow(0 0 4px ${rank.color})` }
+                      : { opacity: 0.25, filter: "grayscale(1)" }
+                  }
+                />
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 /** Barra della saga con le tappe colorate dentro e le percentuali sotto. */
 export const SagaBar: React.FC<{
@@ -265,7 +322,7 @@ export const SagaProgress: React.FC<SagaProgressProps> = ({
       {celebrating && (
         <div
           role="status"
-          className="rank-banner pointer-events-none absolute inset-x-0 top-0 z-10 flex justify-center"
+          className="rank-banner pointer-events-none absolute inset-x-0 top-2 z-10 flex justify-center lg:inset-x-auto lg:left-5 lg:top-auto lg:bottom-3 lg:justify-start"
         >
           <span
             className="mt-2 flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-black uppercase tracking-widest text-white"
@@ -280,37 +337,39 @@ export const SagaProgress: React.FC<SagaProgressProps> = ({
           </span>
         </div>
       )}
-      <div className="relative flex flex-col gap-6 lg:flex-row lg:items-stretch">
-        <div className="flex flex-col justify-center">
-          <div className="flex items-end gap-5">
-            <BigPercent pct={s.pct} />
-            <div className="pb-2">
-              <div className="flex items-center gap-2.5">
-                <RankBadge rank={s.rank} celebrate={celebrating} />
-                <p
-                  className="text-[11px] font-bold uppercase tracking-widest"
-                  style={{ color: s.rank.color }}
-                >
-                  {it ? "Grado" : "Rank"}: {s.rank[locale]}
-                </p>
-              </div>
-              <p className="mt-1 text-sm font-semibold text-neutral-300">
-                <span className="font-extrabold text-white">{s.watched}</span> /{" "}
-                {s.total} {it ? "titoli visti" : "titles watched"}
-              </p>
-            </div>
+      <div className="relative grid grid-cols-1 items-stretch gap-6 lg:grid-cols-[auto_1fr_340px] lg:gap-8">
+        {/* Sinistra: percentuale */}
+        <div className="flex items-center justify-center lg:justify-start">
+          <BigPercent pct={s.pct} />
+        </div>
+
+        {/* Centro: grado, frase, barra a segmenti, condividi */}
+        <div className="flex flex-col items-center justify-center gap-3 text-center">
+          <div className="flex items-center gap-3">
+            <span
+              className={`${bebasNeue.className} text-xl tracking-wider text-neutral-400`}
+            >
+              {it ? "Grado" : "Rank"}
+            </span>
+            <span key={s.rankIndex} className={celebrating ? "rank-rise" : ""}>
+              <RankBadge rank={s.rank} celebrate={celebrating} size={46} />
+            </span>
+            <span
+              className={`${bebasNeue.className} text-3xl uppercase tracking-wider`}
+              style={{ color: s.rank.color, textShadow: `0 0 14px ${s.rank.color}99` }}
+            >
+              {s.rank[locale]}
+            </span>
+          </div>
+          <p className="text-sm font-semibold text-neutral-200">{motivation(s, locale)}</p>
+          <div className="w-full max-w-[520px]">
+            <RankSegmentsBar pct={s.pct} rankIndex={s.rankIndex} locale={locale} />
           </div>
           <ShareRankButton entries={entries} locale={locale} />
         </div>
 
-        <div className="flex flex-1 flex-col justify-center space-y-2.5">
-          <p className="text-center text-sm font-semibold text-neutral-200">
-            {motivation(s, locale)}
-          </p>
-          <SagaBar pct={s.pct} locale={locale} />
-        </div>
-
-        <div className="flex lg:w-[340px]">
+        {/* Destra: prossimo da vedere */}
+        <div className="flex">
           <NextUp
             entry={s.next}
             locale={locale}
