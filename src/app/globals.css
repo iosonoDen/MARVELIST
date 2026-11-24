@@ -110,3 +110,7 @@
 @media (prefers-reduced-motion: reduce) {
   .cookie-enter, .cookie-leave, .cookie-pulse { animation: none; }
 }
+
+/* Locandine del muro: tessera scura finché l'immagine non è pronta, poi dissolvenza. */
+.poster-fade { opacity: 0; transition: opacity 0.5s ease-out; }
+.poster-fade.is-loaded { opacity: 1; }
