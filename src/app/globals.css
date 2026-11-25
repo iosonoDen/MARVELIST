@@ -164,3 +164,47 @@
   .search-in, .search-out, .rise-in { animation: none; }
   .fade-img { transition: none; }
 }
+
+/* Scena post-crediti: l'arco del lucchetto si apre, il lucchetto sparisce, arriva il certificato. */
+@keyframes lock-shackle-open {
+  0% { transform: translateY(0) rotate(0); }
+  45% { transform: translateY(-3px) rotate(0); }
+  100% { transform: translateY(-3px) rotate(-35deg); }
+}
+@keyframes lock-away {
+  0%, 70% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.25); }
+}
+@keyframes lock-text-away {
+  0%, 60% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.lock-shackle-open {
+  transform-box: fill-box;
+  transform-origin: 100% 100%;
+  animation: lock-shackle-open 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+.lock-away { animation: lock-away 1.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.lock-text-away { animation: lock-text-away 1.3s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .lock-shackle-open, .lock-away, .lock-text-away { animation: none; }
+}
+
+/* Popup al centro: lo sfondo si sfoca, il pannello cresce dal centro e rimpicciolisce in chiusura. */
+@keyframes modal-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modal-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes modal-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(6px) scale(0.96); }
+}
+.modal-fade-in { animation: modal-fade-in 0.25s ease-out both; }
+.modal-fade-out { animation: modal-fade-out 0.22s ease-in both; }
+.modal-in { animation: modal-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.modal-out { animation: modal-out 0.22s cubic-bezier(0.22, 1, 0.36, 1) both; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  .modal-fade-in, .modal-fade-out, .modal-in, .modal-out { animation: none; }
+}

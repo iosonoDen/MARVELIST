@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.3.0
+### Added
+- Profilo: "Modifica profilo" nel menu utente apre un popup al centro (sfondo sfocato, animato in apertura e chiusura) con username, nome, cognome facoltativo e foto profilo (di partenza quella di Google).
+- Username: al primo accesso un popup chiede l'username visibile agli altri; si può cambiare una volta ogni 30 giorni, controllo fatto dal server (`/api/profile/username`). Il menu mostra "@username".
+- Logo dell'header cliccabile: al passaggio del cursore una luce rossa soffusa si allarga dal centro, al clic la pagina torna in cima.
+- Pagine di accesso e registrazione: X in alto a destra per tornare alla lista.
+- Pagina privacy anche in inglese, secondo la lingua scelta nella lista.
+
+### Changed
+- Card e righe dei titoli visti più calme: bordo verde sottile, spunta verde sulla locandina, titolo bianco e pulsante "Guardato" solo contornato.
+- Scena post-crediti: lucchetto bianco al posto dell'emoji; quando si completa la saga il lucchetto si apre con un'animazione e compare il certificato.
+- "Torna alla lista" nella privacy: pulsante con freccia, stesso stile e angoli della X delle pagine di accesso.
+- Sottotitolo dell'header: "Marvel Cinematic Universe · La mia lista" (in inglese "Marvel Cinematic Universe · Watchlist").
+- Icona della scheda del browser: nuova icona Marvel (`src/app/icon.ico`, 4 KB al posto del vecchio JPG da 1,3 MB).
+
 ## 2.2.0
 ### Added
 - Ricerca per titolo, personaggio e attore. Mentre scrivi si apre un menu con le foto dei personaggi e degli attori e i titoli; scegliendo un personaggio o un attore la griglia mostra solo i suoi titoli. Con Invio i risultati sono divisi per gruppo, in file che scorrono di lato. I cast completi (da TMDB) stanno in `public/search/` e si scaricano solo quando si tocca la ricerca; si rigenerano con `scripts/build-search-index.mts`.

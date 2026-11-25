@@ -34,7 +34,7 @@ export const WatchStatusButton: FC<WatchStatusButtonProps> = ({
       : "Mark as watched";
 
   const stateClass = watched
-    ? "border-emerald-400/60 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30"
+    ? "border-emerald-400/35 bg-transparent text-emerald-300 hover:bg-emerald-500/10"
     : "border-white/15 bg-neutral-900 text-neutral-300 hover:border-white/40 hover:text-white";
 
   return (

@@ -108,6 +108,27 @@ export const CertificateCard: React.FC<{
 };
 
 type Status = "idle" | "busy" | "done" | "error";
+type Lock = "locked" | "opening" | "open";
+
+const UNLOCK_SEEN = "marvelist:postcredits-unlocked:v1";
+const UNLOCK_MS = 1300;
+
+/** Lucchetto bianco: l'arco si alza e ruota quando si sblocca. */
+const LockIcon: React.FC<{ opening: boolean }> = ({ opening }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`h-7 w-7 text-white ${opening ? "lock-away" : ""}`}
+    aria-hidden="true"
+  >
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" className={opening ? "lock-shackle-open" : ""} />
+    <rect width="18" height="11" x="3" y="11" rx="2" />
+  </svg>
+);
 
 /** Scena post-crediti del footer: bloccata, oppure il certificato da scaricare. */
 export const PostCredits: React.FC<{
@@ -120,7 +141,51 @@ export const PostCredits: React.FC<{
   const { user } = useUser();
   const name = user?.fullName || user?.firstName || (it ? "Agente" : "Agent");
   const [status, setStatus] = useState<Status>("idle");
+  const [lock, setLock] = useState<Lock>("locked");
   const exportRef = useRef<HTMLDivElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  // Sblocco: la prima volta il lucchetto si apre quando il riquadro entra nello schermo
+  useEffect(() => {
+    if (!unlocked) return;
+    let seen = false;
+    try {
+      seen = window.localStorage.getItem(UNLOCK_SEEN) === "1";
+    } catch {
+      /* storage non disponibile: animazione ogni volta */
+    }
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (seen || reduce) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- lettura una tantum dal browser
+      setLock("open");
+      return;
+    }
+    const node = boxRef.current;
+    if (!node) return;
+    let timer = 0;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        io.disconnect();
+        setLock("opening");
+        timer = window.setTimeout(() => {
+          setLock("open");
+          try {
+            window.localStorage.setItem(UNLOCK_SEEN, "1");
+          } catch {
+            /* ignora */
+          }
+        }, UNLOCK_MS);
+      },
+      { threshold: 0.6 },
+    );
+    io.observe(node);
+    return () => {
+      io.disconnect();
+      window.clearTimeout(timer);
+    };
+  }, [unlocked]);
+  const shown: Lock = unlocked ? lock : "locked";
 
   useEffect(() => {
     if (status !== "busy" || !exportRef.current) return;
@@ -170,16 +235,19 @@ export const PostCredits: React.FC<{
   }, [status, watched, total, it]);
 
   return (
-    <div className="mx-auto mt-7 max-w-md rounded-xl border border-dashed border-[#E21B24]/40 px-4 py-3">
+    <div ref={boxRef} className="mx-auto mt-7 max-w-md rounded-xl border border-dashed border-[#E21B24]/40 px-4 py-3">
       <p className={`${bebasNeue.className} text-lg uppercase tracking-[0.12em] text-[#F2A900]`}>
         {it ? "Scena post-crediti" : "Post-credits scene"}
       </p>
-      {!unlocked ? (
-        <p className="mt-1 text-xs text-neutral-300">
-          {it ? "🔒 Diventa Vendicatore per sbloccarla" : "🔒 Become an Avenger to unlock it"}
-        </p>
+      {shown !== "open" ? (
+        <div className="mt-2.5 flex flex-col items-center gap-1.5">
+          <LockIcon opening={shown === "opening"} />
+          <p className={`text-xs text-neutral-300 ${shown === "opening" ? "lock-text-away" : ""}`}>
+            {it ? "Diventa Vendicatore per sbloccarla" : "Become an Avenger to unlock it"}
+          </p>
+        </div>
       ) : (
-        <div className="mt-3 flex flex-col items-center gap-3">
+        <div className="rise-in mt-3 flex flex-col items-center gap-3">
           <p className="text-xs text-neutral-300">
             {it
               ? "Congratulazioni, Vendicatore: ti sei laureato in Multiversologia!"

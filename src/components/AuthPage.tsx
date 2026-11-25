@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { INITIAL_MCU_DATABASE } from "@/data/mcu-canon";
+import { CloseToList } from "@/components/BackLinks";
 import { useStoredLocale } from "@/hooks/useStoredLocale";
 import { byTimeline } from "@/lib/saga";
 
@@ -156,6 +157,10 @@ export const AuthPage: React.FC<{ mode: Mode }> = ({ mode }) => {
 
   return (
     <div className="relative flex min-h-screen flex-col bg-[#060709] text-neutral-100 lg:flex-row">
+      <CloseToList
+        label={it ? "Torna alla lista" : "Back to the list"}
+        className="absolute top-4 right-4 z-30 sm:top-6 sm:right-6"
+      />
       {/* Sinistra: locandine in movimento */}
       <section className="relative h-[42vh] overflow-hidden lg:h-auto lg:w-[53%]">
         <PosterWall />
