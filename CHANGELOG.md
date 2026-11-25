@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.2.0
+### Added
+- Ricerca per titolo, personaggio e attore. Mentre scrivi si apre un menu con le foto dei personaggi e degli attori e i titoli; scegliendo un personaggio o un attore la griglia mostra solo i suoi titoli. Con Invio i risultati sono divisi per gruppo, in file che scorrono di lato. I cast completi (da TMDB) stanno in `public/search/` e si scaricano solo quando si tocca la ricerca; si rigenerano con `scripts/build-search-index.mts`.
+
+### Changed
+- Blocco progresso: "Grado" e il nome del grado hanno la stessa grandezza (24 px) per tutti i gradi.
+
+### Fixed
+- Scheda del titolo: l'etichetta indica chi ha prodotto o trasmesso il titolo (es. "Sony Pictures · Film", "Netflix · Serie", "Marvel Studios · Disney+") invece di "Marvel Studios Movie" / "Disney+ Original Series" per tutti.
+- Cast delle serie animate (Eyes of Wakanda, What If…?, Marvel Zombies, Your Friendly Neighborhood Spider-Man, I Am Groot): esclusi "Additional Voices" e non accreditati; per Eyes of Wakanda prima i doppiatori ufficiali.
+- Percentuale del blocco progresso: niente grassetto artificiale su Impact (le cifre si sovrapponevano), spaziatura normale, "%" bianca.
+- "Ordine narrativo": Eyes of Wakanda "Varie epoche", I Am Groot "2014"; la casella non compare se l'anno non è confermato.
+
 ## 2.1.0
 ### Fixed
 - VisionQuest: data di uscita 14 ottobre 2026 (fonte marvel.com).

@@ -125,3 +125,42 @@
 @media (prefers-reduced-motion: reduce) {
   .rank-rise { animation: none; }
 }
+
+/* Ricerca: il menu scende, le file salgono una dopo l'altra, le foto appaiono. */
+@keyframes search-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes search-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-4px) scale(0.985); }
+}
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.search-in { transform-origin: top left; animation: search-in 0.22s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.search-out { transform-origin: top left; animation: search-out 0.16s cubic-bezier(0.22, 1, 0.36, 1) both; pointer-events: none; }
+.rise-in { animation: rise-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 50ms); }
+
+.fade-img { opacity: 0; transition: opacity 0.4s ease-out, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.fade-img.is-loaded { opacity: 1; }
+
+/* File che scorrono di lato: col dito su telefono, con le frecce su computer. */
+.strip {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.strip::-webkit-scrollbar { display: none; }
+.strip > * { scroll-snap-align: start; }
+.strip-mask-right { mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent); }
+.strip-mask-left { mask-image: linear-gradient(90deg, transparent, #000 48px); }
+.strip-mask-both { mask-image: linear-gradient(90deg, transparent, #000 48px, #000 calc(100% - 48px), transparent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .search-in, .search-out, .rise-in { animation: none; }
+  .fade-img { transition: none; }
+}

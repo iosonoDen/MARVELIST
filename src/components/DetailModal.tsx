@@ -15,6 +15,7 @@ import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 import { Poster } from "@/components/Poster";
 import { StarRating } from "@/components/StarRating";
+import { producerLabel } from "@/data/producers";
 import { TRAILERS, youtubeWatchUrl } from "@/data/trailers";
 import { formatPhase } from "@/utils/phase";
 
@@ -55,6 +56,8 @@ export function DetailModal({
   const castKey =
     tmdbId && tmdbType ? JSON.stringify([tmdbType, tmdbId, locale]) : null;
 
+  // Nomi del cast scelto nel sito, in ordine (stringa stabile per l'effetto)
+  const preferredNames = (entry?.topCast ?? []).map((c) => c.name.toLowerCase()).join("|");
   const fallbackCast: CastMember[] = (entry?.topCast ?? []).map(
     (actor, index) => ({
       id: index,
@@ -116,9 +119,16 @@ export function DetailModal({
         const data: { cast?: CastMember[] } = await response.json();
 
         if (!ignore) {
+          // Il cast scelto nel sito (es. i protagonisti delle serie animate) va per primo,
+          // con le foto prese da TMDB; poi il resto, fino a 8 persone.
+          const preferred = new Map(
+            preferredNames.split("|").map((name, i) => [name, i]),
+          );
+          const rank = (c: CastMember) => preferred.get(c.name.toLowerCase()) ?? 999;
+          const fetched = Array.isArray(data.cast) ? data.cast : [];
           setCastResult({
             key: requestKey,
-            cast: Array.isArray(data.cast) ? data.cast : [],
+            cast: [...fetched].sort((a, b) => rank(a) - rank(b)).slice(0, 8),
           });
         }
       } catch (error) {
@@ -139,7 +149,7 @@ export function DetailModal({
       ignore = true;
       controller.abort();
     };
-  }, [isOpen, tmdbId, tmdbType, castKey, locale]);
+  }, [isOpen, tmdbId, tmdbType, castKey, locale, preferredNames]);
 
   if (!isOpen || !entry) return null;
 
@@ -245,11 +255,7 @@ export function DetailModal({
             <div>
               <div className="flex items-center gap-2 text-xs font-bold text-[#E21B24] tracking-wider uppercase mb-1.5">
                 {entry.type === "movie" ? <Film size={14} /> : <Tv size={14} />}
-                <span>
-                  {entry.type === "movie"
-                    ? "Marvel Studios Movie"
-                    : "Disney+ Original Series"}
-                </span>
+                <span>{producerLabel(entry, locale)}</span>
               </div>
               <h2
                 id="modal-title"
@@ -259,17 +265,20 @@ export function DetailModal({
               </h2>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="p-2.5 rounded-lg bg-neutral-900/50 border border-white/5">
-                <span className="text-neutral-400 block text-[10px] uppercase font-semibold">
-                  {locale === "it"
-                    ? "Ordine Narrativo"
-                    : "Timeline In-Universe"}
-                </span>
-                <span className="text-white font-bold text-sm">
-                  {entry.timelineYear}
-                </span>
-              </div>
+            <div className={`grid gap-2 text-xs ${entry.timelineYear ? "grid-cols-2" : "grid-cols-1"}`}>
+              {/* Senza anno di ambientazione confermato la casella non compare */}
+              {entry.timelineYear && (
+                <div className="p-2.5 rounded-lg bg-neutral-900/50 border border-white/5">
+                  <span className="text-neutral-400 block text-[10px] uppercase font-semibold">
+                    {locale === "it"
+                      ? "Ordine Narrativo"
+                      : "Timeline In-Universe"}
+                  </span>
+                  <span className="text-white font-bold text-sm">
+                    {entry.timelineYear}
+                  </span>
+                </div>
+              )}
               <div className="p-2.5 rounded-lg bg-neutral-900/50 border border-white/5">
                 <span className="text-neutral-400 block text-[10px] uppercase font-semibold">
                   {locale === "it" ? "Data di Uscita" : "Release Date"}
