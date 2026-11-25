@@ -6,6 +6,7 @@
 
 ### Changed
 - Blocco progresso: "Grado" e il nome del grado hanno la stessa grandezza (24 px) per tutti i gradi.
+- Icona della scheda del browser: nuova icona Marvel (`src/app/icon.ico`, 4 KB al posto del vecchio JPG da 1,3 MB).
 
 ### Fixed
 - Scheda del titolo: l'etichetta indica chi ha prodotto o trasmesso il titolo (es. "Sony Pictures · Film", "Netflix · Serie", "Marvel Studios · Disney+") invece di "Marvel Studios Movie" / "Disney+ Original Series" per tutti.
