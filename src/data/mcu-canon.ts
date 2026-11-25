@@ -986,14 +986,17 @@ const ROWS: Row[] = [
     "series",
     "Phase 5",
     "2025-08-01",
-    "",
+    "Varie epoche",
     0,
     "Le missioni segrete degli Hatut Zeraze, guerrieri del Wakanda, attraverso la storia per recuperare manufatti in vibranio.",
     "The secret missions of the Hatut Zeraze, Wakandan warriors, across history to recover vibranium artifacts.",
     [
-      ["Terri Douglas", "Additional Voices (voice)"],
-      ["Michael Woodley", "Additional Voices (voice)"],
-      ["David Boat", "Additional Voices (voice)"]
+      ["Winnie Harlow", "Noni (voce)"],
+      ["Cress Williams", "The Lion (voce)"],
+      ["Patricia Belcher", "Akeya (voce)"],
+      ["Steve Toussaint", "Kuda (voce)"],
+      ["Anika Noni Rose", "Black Panther (voce)"],
+      ["Lynn Whitfield", "Noni da anziana (voce)"]
     ],
   ],
   [
@@ -1088,7 +1091,7 @@ const ROWS: Row[] = [
     "series",
     "Phase 4",
     "2022-08-10",
-    "",
+    "2014",
     0,
     "Le avventure di Baby Groot, piccolo e dispettoso, in giro per la galassia.",
     "The adventures of mischievous little Baby Groot across the galaxy.",

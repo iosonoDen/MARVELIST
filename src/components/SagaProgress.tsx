@@ -159,14 +159,18 @@ export const BigPercent: React.FC<{ pct: number; large?: boolean }> = ({
 }) => (
   <div className="flex items-end leading-[0.85]">
     <span
-      className={`font-black tracking-tighter text-white [text-shadow:0_0_40px_rgba(226,27,36,0.35)] ${
+      // Impact ha un solo peso: niente grassetto (il browser lo ingrasserebbe finto) e spaziatura normale
+      className={`font-normal tracking-normal text-white [text-shadow:0_0_40px_rgba(226,27,36,0.35)] ${
         large ? "text-8xl" : "text-8xl lg:text-[150px]"
       }`}
       style={{ fontFamily: 'Impact, "Arial Black", sans-serif' }}
     >
       {pct}
     </span>
-    <span className={`font-black text-[#E21B24] ${large ? "text-4xl" : "text-4xl lg:text-5xl"}`}>
+    <span
+      className={`ml-1 font-normal text-white ${large ? "text-4xl" : "text-4xl lg:text-5xl"}`}
+      style={{ fontFamily: 'Impact, "Arial Black", sans-serif' }}
+    >
       %
     </span>
   </div>
@@ -347,7 +351,7 @@ export const SagaProgress: React.FC<SagaProgressProps> = ({
         <div className="flex flex-col items-center justify-center gap-3 text-center">
           <div className="flex items-center gap-3">
             <span
-              className={`${bebasNeue.className} text-xl tracking-wider text-neutral-400`}
+              className={`${bebasNeue.className} text-2xl leading-none tracking-wider text-neutral-400`}
             >
               {it ? "Grado" : "Rank"}
             </span>
@@ -355,7 +359,7 @@ export const SagaProgress: React.FC<SagaProgressProps> = ({
               <RankBadge rank={s.rank} celebrate={celebrating} size={46} />
             </span>
             <span
-              className={`${bebasNeue.className} text-3xl uppercase tracking-wider`}
+              className={`${bebasNeue.className} text-2xl leading-none uppercase tracking-wider`}
               style={{ color: s.rank.color, textShadow: `0 0 14px ${s.rank.color}99` }}
             >
               {s.rank[locale]}

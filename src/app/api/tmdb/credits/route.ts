@@ -45,10 +45,16 @@ export async function GET(request: NextRequest) {
     }
 
     const data: { cast?: TMDBPerson[] } = await res.json();
-    const cast = (data.cast ?? []).slice(0, 8).map((p) => ({
+    // Le serie animate mettono per prime le "voci aggiuntive": restano solo i ruoli principali
+    const minor = /additional voices?|voci aggiuntive|\(uncredited\)|non accreditat/i;
+    const roleOf = (p: TMDBPerson) => p.character || p.roles?.[0]?.character || "";
+    const cast = (data.cast ?? [])
+      .filter((p) => !minor.test(roleOf(p)))
+      .slice(0, 30)
+      .map((p) => ({
       id: p.id,
       name: p.name,
-      character: p.character || p.roles?.[0]?.character || "",
+      character: roleOf(p),
       photoUrl: p.profile_path
         ? `https://image.tmdb.org/t/p/w185${p.profile_path}`
         : null,

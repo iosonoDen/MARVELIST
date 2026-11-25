@@ -1,7 +1,8 @@
 "use client";
 
-import { Calendar, Clock, LayoutGrid, List, Search } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { Calendar, Clock, LayoutGrid, List } from "lucide-react";
+import { useCallback, useDeferredValue, useMemo, useRef, useState } from "react";
+import { PickedChip, SearchBox, SearchRows, useCastData } from "@/components/CastSearch";
 import { CinematicBackground } from "@/components/CinematicBackground";
 import { DetailModal } from "@/components/DetailModal";
 import { GlobalProgressHeader } from "@/components/GlobalProgressHeader";
@@ -12,6 +13,7 @@ import { ChallengeBanner } from "@/components/ChallengeBanner";
 import { SiteFooter } from "@/components/SiteFooter";
 import { UserMenu } from "@/components/UserMenu";
 import { useCloudSync } from "@/hooks/useCloudSync";
+import { type CastGroup, normalize, searchCast } from "@/lib/cast-search";
 import { RANKS, sagaProgress } from "@/lib/saga";
 import { SagaProgress } from "@/components/SagaProgress";
 import { INITIAL_MCU_DATABASE, MCU_PHASES } from "@/data/mcu-canon";
@@ -56,6 +58,11 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
   const [selectedUniverse, setSelectedUniverse] = useState<UniverseFilter>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [activeEntry, setActiveEntry] = useState<MCUEntry | null>(null);
+  // Personaggio o attore scelto dalla ricerca: la griglia mostra solo i suoi titoli
+  const [picked, setPicked] = useState<Pick<CastGroup, "kind" | "key" | "label" | "sub" | "person"> | null>(null);
+  const { index: castIndex, photos, loading: castLoading, load: loadCast } = useCastData();
+  const deferredQuery = useDeferredValue(searchQuery);
+  const resultsRef = useRef<HTMLElement>(null);
 
   // Avviso "Hai segnato 3 titoli!": una sola volta, solo senza account,
   // solo quando un singolo "Visto" porta a 3 (non al caricamento o all'import).
@@ -78,7 +85,8 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
   const closeNudge = useCallback(() => setNudgeCount(null), []);
 
 
-  const filteredEntries = useMemo(() => {
+  // Titoli ammessi dai filtri, già in ordine (senza la ricerca)
+  const baseEntries = useMemo(() => {
     return entries
       .filter((entry) => {
         if (filterType !== "all" && entry.type !== filterType) return false;
@@ -87,14 +95,6 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
         if (selectedPhase !== "all" && entry.phase !== selectedPhase)
           return false;
         if (!matchesUniverse(entry.universe, selectedUniverse)) return false;
-        if (searchQuery.trim() !== "") {
-          const q = searchQuery.toLowerCase();
-          const matchTitle = entry.title[locale].toLowerCase().includes(q);
-          const matchYear =
-            entry.timelineYear.toLowerCase().includes(q) ||
-            entry.releaseYear.toString().includes(q);
-          if (!matchTitle && !matchYear) return false;
-        }
         return true;
       })
       .sort((a, b) => {
@@ -111,10 +111,67 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
     filterStatus,
     selectedPhase,
     selectedUniverse,
-    searchQuery,
     sortMode,
-    locale,
   ]);
+
+  const byId = useMemo(() => new Map(baseEntries.map((e) => [e.id, e])), [baseEntries]);
+  const query = deferredQuery.trim();
+
+  // Ricerca per titolo (italiano o inglese) o anno
+  const titleMatches = useMemo(() => {
+    if (!query) return baseEntries;
+    const q = normalize(query);
+    return baseEntries.filter(
+      (entry) =>
+        normalize(entry.title[locale]).includes(q) ||
+        normalize(entry.title[locale === "it" ? "en" : "it"]).includes(q) ||
+        entry.timelineYear.toLowerCase().includes(query.toLowerCase()) ||
+        entry.releaseYear.toString().includes(query),
+    );
+  }, [baseEntries, query, locale]);
+
+  // Ricerca per personaggio e attore (quando l'indice è arrivato)
+  const cast = useMemo(
+    () =>
+      castIndex && query
+        ? searchCast(castIndex, query, baseEntries.map((e) => e.id))
+        : { characters: [], actors: [] },
+    [castIndex, query, baseEntries],
+  );
+
+  const pickedGroup = picked
+    ? [...cast.characters, ...cast.actors].find((g) => g.key === picked.key)
+    : undefined;
+  const castGroups = [...cast.characters.slice(0, 3), ...cast.actors.slice(0, 3)];
+  const showRows = !picked && query.length >= 2 && castGroups.length > 0;
+
+  const filteredEntries = picked
+    ? (pickedGroup?.slugs ?? []).map((s) => byId.get(s)).filter((e): e is MCUEntry => Boolean(e))
+    : titleMatches;
+
+  const scrollToResults = useCallback(() => {
+    requestAnimationFrame(() => {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      resultsRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    });
+  }, []);
+
+  const handleQuery = useCallback(
+    (value: string) => {
+      setSearchQuery(value);
+      if (picked && value !== picked.label) setPicked(null);
+    },
+    [picked],
+  );
+
+  const handlePick = useCallback(
+    (g: CastGroup) => {
+      setSearchQuery(g.label);
+      setPicked({ kind: g.kind, key: g.key, label: g.label, sub: g.sub, person: g.person });
+      scrollToResults();
+    },
+    [scrollToResults],
+  );
 
   const handleToggleWatch = (id: string) => {
     setEntries((prev) =>
@@ -163,25 +220,22 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
           onOpenDetail={setActiveEntry}
         />
 
-        <section className="p-4 sm:p-6 rounded-2xl bg-neutral-950/70 border border-white/10 cinematic-blur space-y-4 shadow-xl">
+        <section className="relative z-30 p-4 sm:p-6 rounded-2xl bg-neutral-950/70 border border-white/10 cinematic-blur space-y-4 shadow-xl">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="relative w-full md:w-96">
-              <Search
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-500"
-                size={16}
-              />
-              <input
-                type="text"
-                placeholder={
-                  locale === "it"
-                    ? "Cerca titolo o anno..."
-                    : "Search title or year..."
-                }
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-neutral-900/80 border border-white/10 focus:border-[#E21B24] focus:outline-none text-xs text-white placeholder-neutral-500 transition-all font-medium"
-              />
-            </div>
+            <SearchBox
+              locale={locale}
+              query={searchQuery}
+              onQuery={handleQuery}
+              onFocusLoad={loadCast}
+              loading={castLoading}
+              characters={cast.characters}
+              actors={cast.actors}
+              titles={query ? titleMatches : []}
+              photos={photos}
+              onPick={handlePick}
+              onOpenTitle={setActiveEntry}
+              onSubmit={scrollToResults}
+            />
 
             <div className="flex w-full flex-wrap items-center justify-center gap-3 md:w-auto md:flex-nowrap">
               <div className="flex flex-1 items-center justify-center gap-1.5 p-1 rounded-xl bg-neutral-900/80 border border-white/10 text-xs md:flex-none">
@@ -329,8 +383,34 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
           </div>
         </section>
 
-        <section>
-          {filteredEntries.length === 0 ? (
+        <section ref={resultsRef} className="scroll-mt-24">
+          {picked && (
+            <PickedChip
+              key={picked.key}
+              group={picked}
+              count={filteredEntries.length}
+              photo={photos?.[picked.person]}
+              locale={locale}
+              onClear={() => {
+                setPicked(null);
+                setSearchQuery("");
+              }}
+            />
+          )}
+          {showRows ? (
+            <SearchRows
+              titles={titleMatches}
+              groups={castGroups}
+              byId={byId}
+              photos={photos}
+              onPick={handlePick}
+              locale={locale}
+              sortMode={sortMode}
+              onOpenDetail={setActiveEntry}
+              onToggleWatch={handleToggleWatch}
+              onRate={handleRate}
+            />
+          ) : filteredEntries.length === 0 ? (
             <div className="py-24 text-center rounded-2xl bg-neutral-950/40 border border-white/5 cinematic-blur">
               <p className="text-neutral-400 text-sm font-medium">
                 {locale === "it"
@@ -339,7 +419,7 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
               </p>
             </div>
           ) : viewMode === "grid" ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+            <div key={`results-${picked?.key ?? "all"}`} className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 ${picked ? "rise-in" : ""}`}>
               {filteredEntries.map((entry) => (
                 <MCUCard
                   key={entry.id}
@@ -353,7 +433,7 @@ export function WatchlistApp({ challenge = null }: WatchlistAppProps) {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col gap-2.5">
+            <div key={`results-${picked?.key ?? "all"}`} className={`flex flex-col gap-2.5 ${picked ? "rise-in" : ""}`}>
               {filteredEntries.map((entry) => (
                 <MCUListItem
                   key={entry.id}
