@@ -1,5 +1,6 @@
 "use client";
 
+import { Check } from "lucide-react";
 import type { FC } from "react";
 import { Poster } from "@/components/Poster";
 import { StarRating } from "@/components/StarRating";
@@ -35,31 +36,18 @@ export const MCUListItem: FC<MCUListItemProps> = ({
         ? "Serie"
         : "Series";
 
+  // Visto: bordo verde sottile e spunta sulla locandina, come nella griglia
   const borderClass = entry.watched
-    ? "border-emerald-400/50 hover:border-emerald-400/70"
+    ? "border-emerald-400/45 hover:border-emerald-400/70"
     : "border-white/10 hover:border-[#E21B24]/70";
 
-  const phaseClass = entry.watched
-    ? "border-emerald-400/50 text-emerald-400"
-    : "border-white/10 text-[#E21B24]";
-
-  const titleClass = entry.watched
-    ? "text-emerald-300 group-hover:text-emerald-200"
-    : "text-white group-hover:text-red-400";
-
-  const tintBase =
-    "pointer-events-none absolute inset-0 transition-opacity duration-500 ease-out motion-reduce:transition-none";
-  const tintState = entry.watched ? "opacity-100" : "opacity-0";
+  const phaseClass = "border-white/10 text-[#E21B24]";
+  const titleClass = "text-white group-hover:text-red-400";
 
   return (
     <article
       className={`group relative flex items-center gap-3 overflow-hidden rounded-xl border bg-[#0A0D14]/90 p-2.5 font-sans shadow-md transition-colors duration-300 sm:gap-4 sm:p-3 ${borderClass}`}
     >
-      <div
-        aria-hidden="true"
-        className={`${tintBase} bg-emerald-500/5 ${tintState}`}
-      />
-
       <button
         type="button"
         onClick={() => onOpenDetail(entry)}
@@ -73,10 +61,14 @@ export const MCUListItem: FC<MCUListItemProps> = ({
 
       <div className="relative aspect-2/3 w-14 shrink-0 overflow-hidden rounded-lg bg-neutral-950 sm:w-16">
         <Poster entry={entry} locale={locale} />
-        <div
+        <span
           aria-hidden="true"
-          className={`${tintBase} bg-emerald-500/8 shadow-[inset_0_0_0_2px_rgba(52,211,153,0.45)] ${tintState}`}
-        />
+          className={`pointer-events-none absolute top-1 right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-emerald-500 text-white shadow transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+            entry.watched ? "scale-100 opacity-100" : "scale-50 opacity-0"
+          }`}
+        >
+          <Check size={11} strokeWidth={3} />
+        </span>
       </div>
 
       <div className="relative min-w-0 flex-1 text-left">

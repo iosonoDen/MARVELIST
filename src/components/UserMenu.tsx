@@ -1,10 +1,11 @@
 "use client";
 
 import { useAuth, useClerk, useUser } from "@clerk/nextjs";
-import { Cloud, CloudOff, LogIn, LogOut, User, UserPlus, X } from "lucide-react";
+import { Cloud, CloudOff, LogIn, LogOut, Pencil, User, UserPlus, X } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { ChooseUsernameDialog, EditProfileDialog } from "@/components/ProfileDialogs";
 import type { SyncStatus } from "@/hooks/useCloudSync";
 import type { SupportedLocale } from "@/types/mcu";
 
@@ -30,6 +31,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   const { user } = useUser();
   const { signOut } = useClerk();
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
   // Chiude il menu cliccando fuori o con Esc
@@ -103,7 +105,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
             <>
               <div className="px-3 py-2.5">
                 <p className="truncate text-sm font-bold text-white">
-                  {user?.fullName ?? user?.primaryEmailAddress?.emailAddress}
+                  {user?.username ? `@${user.username}` : (user?.fullName ?? user?.primaryEmailAddress?.emailAddress)}
                 </p>
                 <p className="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-neutral-400">
                   {syncStatus === "error" ? (
@@ -125,6 +127,18 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                 </p>
               </div>
               <div className="my-1 h-px bg-white/10" />
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setOpen(false);
+                  setEditing(true);
+                }}
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm font-bold text-neutral-200 hover:bg-white/5"
+              >
+                <Pencil size={16} aria-hidden="true" />
+                {it ? "Modifica profilo" : "Edit profile"}
+              </button>
               <button
                 type="button"
                 role="menuitem"
@@ -171,6 +185,9 @@ export const UserMenu: React.FC<UserMenuProps> = ({
           )}
         </div>
       )}
+
+      {isSignedIn && <ChooseUsernameDialog locale={locale} />}
+      {editing && <EditProfileDialog locale={locale} onClosed={() => setEditing(false)} />}
 
       {/* Avviso dall'alto, sotto il pulsante utente: 5 secondi */}
       {showNudge && (

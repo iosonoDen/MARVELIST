@@ -1,5 +1,6 @@
 "use client";
 
+import { Check } from "lucide-react";
 import type { FC } from "react";
 import { Poster } from "@/components/Poster";
 import { StarRating } from "@/components/StarRating";
@@ -35,21 +36,14 @@ export const MCUCard: FC<MCUCardProps> = ({
         ? "Serie"
         : "Series";
 
+  // Visto: solo bordo verde sottile e spunta sulla locandina, il resto come le altre card
   const borderClass = entry.watched
-    ? "border-emerald-400/50 hover:border-emerald-400/70 hover:shadow-[0_12px_32px_rgba(16,185,129,0.2)]"
+    ? "border-emerald-400/45 hover:border-emerald-400/70"
     : "border-white/10 hover:border-[#E21B24]/70 hover:shadow-[0_12px_32px_rgba(226,27,36,0.3)]";
 
-  const phaseClass = entry.watched
-    ? "border-emerald-400/50 text-emerald-400"
-    : "border-white/10 text-[#E21B24]";
-
-  const titleClass = entry.watched
-    ? "text-emerald-300 group-hover:text-emerald-200"
-    : "text-white group-hover:text-red-400";
-
-  const footerClass = entry.watched
-    ? "border-emerald-400/20 bg-emerald-950/50"
-    : "border-white/5 bg-neutral-950/85";
+  const phaseClass = "border-white/10 text-[#E21B24]";
+  const titleClass = "text-white group-hover:text-red-400";
+  const footerClass = "border-white/5 bg-neutral-950/85";
 
   return (
     <article
@@ -63,12 +57,14 @@ export const MCUCard: FC<MCUCardProps> = ({
         />
         <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent opacity-90" />
 
-        <div
+        <span
           aria-hidden="true"
-          className={`pointer-events-none absolute inset-0 bg-emerald-500/8 shadow-[inset_0_0_0_2px_rgba(52,211,153,0.45)] transition-opacity duration-500 ease-out motion-reduce:transition-none ${
-            entry.watched ? "opacity-100" : "opacity-0"
+          className={`pointer-events-none absolute top-2.5 right-2.5 z-10 flex h-6.5 w-6.5 items-center justify-center rounded-full bg-emerald-500 text-white shadow-md transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+            entry.watched ? "scale-100 opacity-100" : "scale-50 opacity-0"
           }`}
-        />
+        >
+          <Check size={14} strokeWidth={3} />
+        </span>
 
         <button
           type="button"
