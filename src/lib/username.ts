@@ -1,5 +1,5 @@
 /** Regole dell'username, uguali sul client e sul server. */
-export const USERNAME_RE = /^[a-z0-9_.]{4,20}$/;
+export const USERNAME_RE = /^[a-z0-9_.]{3,20}$/;
 /** Giorni di attesa tra un cambio di username e il successivo. */
 export const USERNAME_COOLDOWN_DAYS = 30;
 
