@@ -1,115 +1,93 @@
-# MARVELIST
+<div align="center">
 
-A watchlist for the **Marvel Cinematic Universe** and beyond: 120 titles — the MCU (66, including One-Shots and specials) plus 54 Marvel films and series outside the MCU (Sony Spider-Man, Fox X-Men, Netflix and more). Mark what you have watched and rate each title with half stars.
-Available in English and Italian. Posters, cast and metadata come from [TMDB](https://www.themoviedb.org/).
+<sub><b>English</b> · <a href="README_it.md">Italiano</a></sub>
 
-## Features
+<br><br>
 
-- Sorted by **canonical timeline** (official Marvel/Disney+ order for the MCU, with non-MCU titles placed by their setting year) or **release date**
-- Filters by universe (MCU, Netflix, X-Men Fox, Sony…)
-- Filters by type (movies or series), status (watched or unwatched) and phase, plus search by title or year
-- **Grid** or **list** view
-- Ratings from 0.5 to 5 stars and a saga progress bar
-- A detail view for each title with synopsis, **cast with photos** and a direct link to the **official trailer** (Marvel Italia or Marvel Entertainment)
-- Progress saved in your browser (`localStorage`), with no account needed
-- **Optional Google login** (Clerk) to sync your progress across devices
-- A background video with volume and visibility controls
+<img src=".github/logo.svg" alt="MARVELIST" height="120">
 
-## Tech stack
+<br>
 
-Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · Clerk · lucide-react
+<h2>Tired of forgetting which movies you have already watched?</h2>
 
-## Requirements
+The list of Marvel Cinematic Universe titles, and more, is
 
-- **Node.js 24.x**
-- A free **TMDB** account, for cast photos and English posters
-- A **Clerk** application for the optional Google login (installed from the Vercel Marketplace; `vercel env pull .env.local` downloads its keys)
+<h1>FINALLY HERE!</h1>
 
-## Getting started
+100+ titles, including 54 Marvel movies and series outside the MCU (Sony’s Spider-Man, Fox’s X-Men, Netflix and more).
 
-```bash
-git clone https://github.com/iosonoDen/MARVELIST.git
-cd MARVELIST
-npm install
-```
+Keep track of what you have already watched and rate every title. Available in English and Italian. Posters, cast and metadata come from <a href="https://www.themoviedb.org/">TMDB</a>.
 
-### 1. Get a TMDB credential
+<br>
 
-1. Create a free account at [themoviedb.org](https://www.themoviedb.org/signup).
-2. Go to **Settings → API** ([direct link](https://www.themoviedb.org/settings/api)) and request an API key for personal, non-commercial use.
-3. Copy **one** of the two credentials. Either one works:
-   - **API Read Access Token**: the long one that starts with `eyJ…` (recommended)
-   - **API Key**: the short one, 32 characters
+<h3>The site is finally live here</h3>
 
-### 2. Set up environment variables
+<a href="https://marvel-ist.vercel.app/"><img src="https://img.shields.io/badge/marvel--ist.vercel.app-E21B24?style=for-the-badge&logo=vercel&logoColor=white" alt="marvel-ist.vercel.app" height="56"></a>
 
-```bash
-cp .env.example .env.local
-```
+</div>
 
-Open `.env.local` and paste your credential:
+<br>
 
-```env
-TMDB_API_KEY=your_credential
-```
+---
 
-> `.env.local` is ignored by git, so your key stays on your machine.
-> The key is used only on the server, in the `/api/tmdb/*` routes, and is never sent to the browser.
+<h3 align="center">NERD INFOS</h3>
 
-### 3. Run
+---
 
-```bash
-npm run dev
-```
+## Coding Stack
 
-Open [http://localhost:3000](http://localhost:3000).
-
-**The app works without a credential too.** Posters, lists and ratings all keep working. Only the cast photos are missing: the cast names show instead.
-
-## Scripts
-
-| Command | What it does |
-|---|---|
-| `npm run dev` | Start the development server |
-| `npm run build` | Create a production build |
-| `npm run start` | Run the production build |
-| `npm run lint` | Run ESLint |
-| `npm run typecheck` | Check types with TypeScript |
-
-## Deploy on Vercel
-
-1. Import the repository on [Vercel](https://vercel.com/new).
-2. In **Project Settings → Environment Variables**, add `TMDB_API_KEY` with your credential.
-3. Deploy. If you add or change the variable later, deploy again.
+<p>
+  <img src="https://img.shields.io/badge/Next.js_16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js 16">
+  <img src="https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React 19">
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Tailwind_CSS_4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS 4">
+  <img src="https://img.shields.io/badge/Clerk-6C47FF?style=for-the-badge&logo=clerk&logoColor=white" alt="Clerk">
+  <img src="https://img.shields.io/badge/lucide--react-F56565?style=for-the-badge&logo=lucide&logoColor=white" alt="lucide--react">
+</p>
 
 ## Project structure
 
 ```
 src/
 ├─ app/
-│  ├─ page.tsx              # main page
-│  └─ api/tmdb/             # server routes: cast (credits) and posters
-├─ components/              # cards, list rows, detail modal, header, video background…
+│  ├─ page.tsx                # main page
+│  ├─ layout.tsx              # shared layout, fonts, cookies
+│  ├─ api/
+│  │  ├─ tmdb/                # cast and posters from TMDB (server only)
+│  │  ├─ progress/            # progress saved in the account
+│  │  └─ profile/username/    # username, one change per month
+│  ├─ login-page/             # Google sign-in (Clerk)
+│  ├─ signup-page/            # Google sign-up (Clerk)
+│  ├─ sso-callback/           # return from Google
+│  ├─ privacy/                # privacy policy (IT / EN)
+│  └─ s/[code]/               # shared challenge link, with preview image
+├─ assets/fonts/              # fonts for the share images
+├─ components/                # cards, list rows, title details, search, header, profile, certificate…
 ├─ data/
-│  ├─ mcu-canon.ts          # MCU titles (and builds the full database)
-│  ├─ beyond-mcu.ts         # Marvel titles outside the MCU
-│  ├─ timeline-order.ts     # canonical timeline order
-│  ├─ tmdb.ts               # TMDB IDs and posters
-│  ├─ trailers.ts           # official YouTube trailers (IT / EN)
-│  └─ legacy-ids.ts         # migration of old IDs (do not edit)
-├─ hooks/                   # saved progress and view mode
-├─ lib/tmdb-server.ts       # TMDB requests (server only)
-└─ utils/                   # phase labels
+│  ├─ rows.ts                 # title row format
+│  ├─ mcu-canon.ts            # MCU titles (and builds the full database)
+│  ├─ beyond-mcu.ts           # Marvel titles outside the MCU
+│  ├─ timeline-order.ts       # canonical timeline order
+│  ├─ tmdb.ts                 # TMDB IDs and posters
+│  ├─ trailers.ts             # official YouTube trailers (IT / EN)
+│  ├─ producers.ts            # studio or network of each title
+│  └─ legacy-ids.ts           # migration of old IDs (do not edit)
+├─ hooks/                     # saved progress, sync, language, view mode
+├─ lib/
+│  ├─ saga.ts                 # ranks and saga progress
+│  ├─ cast-search.ts          # search by character and actor
+│  ├─ progress-sync.ts        # merges local and account progress
+│  ├─ username.ts             # username rules
+│  ├─ consent.ts              # cookie choice
+│  └─ tmdb-server.ts          # TMDB requests (server only)
+├─ types/                     # TypeScript types
+└─ utils/                     # phase and universe labels
+public/search/                # full casts for the search, downloaded only when needed
+scripts/build-search-index.mts  # rebuilds the search files from TMDB
 ```
-
-### Adding a title
-
-Add a row to `src/data/mcu-canon.ts` (or `beyond-mcu.ts`), its slug to `src/data/timeline-order.ts`, its TMDB data to `src/data/tmdb.ts` and, if available, its YouTube trailer IDs to `src/data/trailers.ts`, all with the same slug.
-Each title's ID is its **slug**, so adding or moving rows never affects saved progress.
 
 ## Credits and disclaimer
 
-- This product uses the TMDB API but is not endorsed or certified by TMDB.
-  Posters, cast photos and metadata © [TMDB](https://www.themoviedb.org/) and their respective owners.
-- MARVELIST is an unofficial fan project. It is not affiliated with Marvel Studios or The Walt Disney Company.
-  Marvel, its logos and characters are trademarks of their respective owners. The background video is Marvel material; consider replacing it before making the site public.
+This product uses the TMDB API. Posters, cast photos and metadata are © [TMDB](https://www.themoviedb.org/) and their respective owners.
+
+MARVELIST is an unofficial fan project. It is not affiliated with any of the brands featured on the site. Marvel, its logos and its characters are registered trademarks of their respective owners. The background video is Marvel material.
