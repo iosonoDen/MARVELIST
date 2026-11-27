@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.1
+### Changed
+- Username: minimo 3 caratteri invece di 4 (da 3 a 20).
+- README nuovo in inglese (`README.md`) e italiano (`README_it.md`), con il logo del sito (`.github/logo.svg`).
+- Cast della ricerca aggiornati da TMDB; nuovo comando `npm run search-index` per rigenerarli.
+- Configurazione: niente header "X-Powered-By", nomi dei file coerenti in TypeScript, ESLint ignora `public/`, note per chi lavora sul progetto in `AGENTS.md`, `.env.example` con le impostazioni di Clerk.
+
 ## 2.3.0
 ### Added
 - Profilo: "Modifica profilo" nel menu utente apre un popup al centro (sfondo sfocato, animato in apertura e chiusura) con username, nome, cognome facoltativo e foto profilo (di partenza quella di Google).
