@@ -147,7 +147,7 @@ const UsernameField: React.FC<{
     </span>
   ) : check === "invalid" && value ? (
     <span className="text-neutral-500">
-      {it ? "Da 4 a 20 caratteri: lettere, numeri, _ e ." : "4 to 20 characters: letters, numbers, _ and ."}
+      {it ? "Da 3 a 20 caratteri: lettere, numeri, _ e ." : "3 to 20 characters: letters, numbers, _ and ."}
     </span>
   ) : check === "checking" ? (
     <span className="text-neutral-500">{it ? "Controllo…" : "Checking…"}</span>

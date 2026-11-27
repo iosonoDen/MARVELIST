@@ -3,8 +3,8 @@
  * - public/search/index.json: nomi e personaggi, si scarica appena si tocca la ricerca
  * - public/search/photos.json: foto degli attori, nello stesso ordine di "p"
  *
- * Uso (serve la credenziale TMDB):
- *   TMDB_API_KEY=... node scripts/build-search-index.mts
+ * Uso (serve la credenziale TMDB), da rilanciare dopo aver aggiunto titoli:
+ *   TMDB_API_KEY=... npm run search-index
  *
  * Formato di index.json:
  *   p: [nome attore, ...]

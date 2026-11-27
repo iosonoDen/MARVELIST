@@ -1,13 +1,14 @@
 {
   "name": "marvelist",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "search-index": "node scripts/build-search-index.mts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.10.7",
